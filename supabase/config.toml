@@ -1,0 +1,74 @@
+project_id = "haka"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+site_url = "haka://auth"
+additional_redirect_urls = ["haka://auth/callback"]
+enable_signup = true
+enable_anonymous_sign_ins = true
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = true
+secure_password_change = false
+max_frequency = "1m"
+otp_length = 8
+otp_expiry = 3600
+
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
+
+[realtime]
+enabled = true
+
+[edge_runtime]
+enabled = true
+policy = "per_worker"
+
+[functions.create-couple]
+verify_jwt = true
+
+[functions.redeem-invite]
+verify_jwt = true
+
+[functions.get-bootstrap]
+verify_jwt = true
+
+[functions.tap-heart]
+verify_jwt = true
+
+[functions.register-device]
+verify_jwt = true
+
+[functions.thinking-of-you]
+verify_jwt = true
+
+[functions.send-love-note]
+verify_jwt = true
+
+[functions.get-love-notes]
+verify_jwt = true
+
+[functions.set-mood]
+verify_jwt = true
+
+[functions.get-mood]
+verify_jwt = true

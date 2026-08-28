@@ -1,0 +1,17 @@
+functions/node_modules/
+functions/lib/
+functions/.firebase/
+node_modules/
+.firebase/
+supabase/.temp/
+*-debug.log
+.firebaserc
+.env
+.env.*
+!.env.example
+local.properties
+.gradle/
+.kotlin/
+build/
+app/build/
+app/google-services.json

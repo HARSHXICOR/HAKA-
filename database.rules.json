@@ -1,0 +1,55 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "users": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || (data.child('coupleId').exists() && root.child('users').child(auth.uid).child('coupleId').val() === data.child('coupleId').val()))",
+        "displayName": {
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 40"
+        },
+        "coupleId": { ".write": false },
+        "createdAt": { ".write": false }
+      }
+    },
+    "couples": {
+      "$coupleId": {
+        ".read": false,
+        ".write": false,
+        "state": {
+          ".read": false,
+          "heart": {
+            ".read": "auth != null && root.child('couples').child($coupleId).child('members').child(auth.uid).exists()"
+          },
+          "today": {
+            ".read": "auth != null && root.child('couples').child($coupleId).child('members').child(auth.uid).exists()"
+          },
+          "streak": {
+            ".read": "auth != null && root.child('couples').child($coupleId).child('members').child(auth.uid).exists()"
+          },
+          "internal": { ".read": false, ".write": false }
+        },
+        "daily": {
+          ".read": "auth != null && root.child('couples').child($coupleId).child('members').child(auth.uid).exists()"
+        },
+        "milestones": {
+          ".read": "auth != null && root.child('couples').child($coupleId).child('members').child(auth.uid).exists()"
+        },
+        "internal": { ".read": false, ".write": false }
+      }
+    },
+    "inviteCodes": {
+      "$code": { ".read": false, ".write": false }
+    },
+    "devices": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$deviceId": {
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "newData.hasChildren(['fcmToken', 'updatedAt', 'notificationsEnabled']) && newData.child('fcmToken').isString() && newData.child('fcmToken').val().length <= 4096 && newData.child('updatedAt').isNumber() && newData.child('notificationsEnabled').isBoolean()"
+        }
+      }
+    }
+  }
+}

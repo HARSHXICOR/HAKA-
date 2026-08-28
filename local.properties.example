@@ -1,0 +1,4 @@
+# Copy to local.properties. Do not commit the real file.
+sdk.dir=/path/to/Android/sdk
+SUPABASE_URL=https://qvkzcqsgisrdkbnuylcw.supabase.co
+SUPABASE_ANON_KEY=your_publishable_or_anon_key

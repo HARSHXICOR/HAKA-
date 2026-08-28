@@ -1,0 +1,16 @@
+{
+  "name": "haka-backend",
+  "private": true,
+  "scripts": {
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "supabase:reset": "supabase db reset --local",
+    "test:supabase": "supabase test db",
+    "supabase:lint": "supabase db lint --local --level warning",
+    "smoke:supabase": "node scripts/supabase-smoke.mjs"
+  },
+  "devDependencies": {
+    "@supabase/supabase-js": "^2.57.4",
+    "supabase": "^2.45.5"
+  }
+}

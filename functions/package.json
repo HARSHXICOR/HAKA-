@@ -1,0 +1,29 @@
+{
+  "name": "haka-functions",
+  "private": true,
+  "engines": {
+    "node": "22"
+  },
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf lib",
+    "serve": "npm run build && firebase emulators:start --only auth,functions,database",
+    "test": "npm run build && vitest run src",
+    "test:emulator": "RUN_EMULATOR_TESTS=1 vitest run src/integration --fileParallelism=false",
+    "verify:node": "node scripts/check-node.cjs",
+    "verify:deploy": "npm run verify:node && npm test"
+  },
+  "dependencies": {
+    "firebase-admin": "^14.3.0",
+    "firebase-functions": "^7.3.2"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.2",
+    "@types/node": "^22.15.0",
+    "firebase": "^12.18.0",
+    "firebase-tools": "^15.28.1",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.2"
+  }
+}

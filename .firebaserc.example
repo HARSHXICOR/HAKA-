@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "dev": "REPLACE_WITH_HAKA_DEV_PROJECT_ID",
+    "staging": "REPLACE_WITH_HAKA_STAGING_PROJECT_ID",
+    "prod": "REPLACE_WITH_HAKA_PRODUCTION_PROJECT_ID"
+  }
+}
