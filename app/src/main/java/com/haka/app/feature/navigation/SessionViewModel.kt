@@ -4,11 +4,17 @@ import android.content.Context
 import android.provider.Settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.google.firebase.messaging.FirebaseMessaging
 import com.haka.app.core.model.BootstrapResponse
 import com.haka.app.core.model.CachedHakaState
 import com.haka.app.core.model.SyncStatus
 import com.haka.app.data.heart.HakaRepository
+import com.haka.app.work.RelationshipReminderWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +23,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 sealed interface SessionState {
@@ -62,6 +69,7 @@ class SessionViewModel @Inject constructor(
         runCatching { repository.bootstrap() }
             .onSuccess { response ->
                 response.couple?.coupleId?.let(repository::startRealtime)
+                response.couple?.coupleId?.let { scheduleRelationshipReminders() }
                 registerCurrentNotificationToken()
                 status.value = SyncStatus.Synced
             }
@@ -75,5 +83,14 @@ class SessionViewModel @Inject constructor(
             val deviceId = Settings.Secure.getString(appContext.contentResolver, Settings.Secure.ANDROID_ID) ?: "unknown"
             viewModelScope.launch { runCatching { repository.registerDevice(deviceId, token, true) } }
         }
+    }
+
+    private fun scheduleRelationshipReminders() {
+        val request = PeriodicWorkRequestBuilder<RelationshipReminderWorker>(24, TimeUnit.HOURS)
+            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .build()
+        WorkManager.getInstance(appContext).enqueueUniquePeriodicWork(
+            "haka_relationship_reminders", ExistingPeriodicWorkPolicy.UPDATE, request,
+        )
     }
 }

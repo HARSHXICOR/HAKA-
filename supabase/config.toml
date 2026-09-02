@@ -72,3 +72,6 @@ verify_jwt = true
 
 [functions.get-mood]
 verify_jwt = true
+
+[functions.relationship-story]
+verify_jwt = true

@@ -26,6 +26,7 @@ import com.haka.app.feature.pairing.PairingScreen
 import com.haka.app.feature.settings.SettingsScreen
 import com.haka.app.feature.insights.InsightsScreen
 import com.haka.app.feature.love.LoveScreen
+import com.haka.app.feature.story.StoryScreen
 
 @Composable fun HakaRoot(viewModel: SessionViewModel = hiltViewModel()) {
     val state by viewModel.session.collectAsState()
@@ -54,6 +55,7 @@ import com.haka.app.feature.love.LoveScreen
                 0 -> HomeScreen(cached, offline)
                 1 -> InsightsScreen(cached)
                 2 -> LoveScreen(cached)
+                3 -> StoryScreen(cached)
                 else -> SettingsScreen(cached, onSignOut)
             }
         }
@@ -66,6 +68,7 @@ private fun HakaBottomBar(selected: Int, onSelected: (Int) -> Unit) {
         Triple("Heart", Icons.Rounded.Favorite, Color(0xFFFF5C83)),
         Triple("Insights", Icons.Rounded.BarChart, Color(0xFFC9BEC7)),
         Triple("Love", Icons.Rounded.FavoriteBorder, Color(0xFFC9BEC7)),
+        Triple("Us", Icons.Rounded.Favorite, Color(0xFFC9BEC7)),
         Triple("Settings", Icons.Rounded.Settings, Color(0xFFC9BEC7)),
     )
     Box(

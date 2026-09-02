@@ -39,6 +39,16 @@ import kotlinx.serialization.Serializable
 @Serializable data class LoveNotesResponse(val notes: List<LoveNoteDto> = emptyList())
 @Serializable data class MoodRequest(val coupleId: String, val mood: String)
 @Serializable data class MoodResponse(val day: String, val moods: Map<String, String> = emptyMap())
+@Serializable data class StoryRequest(
+    val coupleId: String, val action: String, val title: String? = null, val caption: String? = null,
+    val occurredOn: String? = null, val photoPath: String? = null, val photoBase64: String? = null, val photoBase64s: List<String> = emptyList(), val photoPaths: List<String> = emptyList(), val itemId: String? = null, val listId: String? = null,
+    val label: String? = null, val kind: String? = null, val remindAnnually: Boolean = true,
+)
+@Serializable data class MemoryDto(val id: String, val title: String, val caption: String = "", val occurredOn: String? = null, val photoPaths: List<String> = emptyList(), val photoKeys: List<String> = emptyList(), val createdAt: Long = 0)
+@Serializable data class BucketItemDto(val id: String, val listId: String? = null, val title: String, val completedAt: Long? = null, val createdAt: Long = 0)
+@Serializable data class BucketListDto(val id: String, val title: String, val createdAt: Long = 0)
+@Serializable data class RelationshipDateDto(val id: String, val label: String, val kind: String, val occursOn: String, val remindAnnually: Boolean = true)
+@Serializable data class StoryResponse(val memories: List<MemoryDto> = emptyList(), val bucketItems: List<BucketItemDto> = emptyList(), val bucketLists: List<BucketListDto> = emptyList(), val dates: List<RelationshipDateDto> = emptyList())
 
 @Serializable data class BootstrapResponse(val uid: String, val user: UserDto? = null, val couple: CoupleDto? = null)
 @Serializable data class UserDto(val displayName: String? = null, val coupleId: String? = null, val createdAt: Long? = null)

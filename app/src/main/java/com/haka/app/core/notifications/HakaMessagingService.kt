@@ -50,6 +50,11 @@ class HakaMessagingService : FirebaseMessagingService() {
                     notificationKey = message.data["noteId"] ?: "love_note",
                 )
             }
+            "relationship_date" -> showPartnerNotification(
+                title = "A special day ❤️",
+                body = message.data["label"]?.let { "Today is $it." } ?: "A special day is here.",
+                notificationKey = "relationship_date_${message.data["label"] ?: "today"}",
+            )
         }
     }
 

@@ -161,3 +161,22 @@ export async function notifyLoveNote(admin: SupabaseClient, partnerUid: string, 
   }));
   return results.every(Boolean);
 }
+
+export async function notifyRelationshipDate(admin: SupabaseClient, partnerUid: string, coupleId: string, label: string): Promise<boolean> {
+  const raw = Deno.env.get("FIREBASE_SERVICE_ACCOUNT_JSON");
+  if (!raw) return false;
+  const account = JSON.parse(raw) as ServiceAccount;
+  const { data, error } = await admin.from("devices").select("fcm_token").eq("user_id", partnerUid).eq("notifications_enabled", true);
+  if (error) throw error;
+  const tokens = [...new Set((data ?? []).map((entry) => entry.fcm_token as string).filter(Boolean))];
+  if (!tokens.length) return false;
+  const bearer = await accessToken(account);
+  const results = await Promise.all(tokens.map(async (token) => {
+    const response = await fetch(`https://fcm.googleapis.com/v1/projects/${account.project_id}/messages:send`, {
+      method: "POST", headers: { authorization: `Bearer ${bearer}`, "content-type": "application/json" },
+      body: JSON.stringify({ message: { token, notification: { title: "A special day ❤️", body: `Today is ${label}.` }, data: { type: "relationship_date", coupleId, label } } }),
+    });
+    return response.ok;
+  }));
+  return results.every(Boolean);
+}

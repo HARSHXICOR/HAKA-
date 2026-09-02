@@ -64,6 +64,21 @@ interface HakaRepository {
     suspend fun getLoveNotes(coupleId: String): List<LoveNoteDto>
     suspend fun setMood(coupleId: String, mood: String): MoodResponse
     suspend fun getMoods(coupleId: String): MoodResponse
+    suspend fun getStory(coupleId: String): StoryResponse
+    suspend fun addMemory(coupleId: String, title: String, caption: String, occurredOn: String?, photoBase64s: List<String>): StoryResponse
+    suspend fun addBucketItem(coupleId: String, title: String): StoryResponse
+    suspend fun toggleBucketItem(coupleId: String, itemId: String): StoryResponse
+    suspend fun addRelationshipDate(coupleId: String, label: String, kind: String, occursOn: String, remindAnnually: Boolean): StoryResponse
+    suspend fun updateMemory(coupleId: String, memory: MemoryDto, title: String, caption: String, occurredOn: String?, photoBase64s: List<String>): StoryResponse
+    suspend fun deleteMemory(coupleId: String, id: String): StoryResponse
+    suspend fun updateBucketItem(coupleId: String, id: String, title: String): StoryResponse
+    suspend fun deleteBucketItem(coupleId: String, id: String): StoryResponse
+    suspend fun addBucketList(coupleId: String, title: String): StoryResponse
+    suspend fun addBucketListItem(coupleId: String, listId: String, title: String): StoryResponse
+    suspend fun updateBucketList(coupleId: String, id: String, title: String): StoryResponse
+    suspend fun deleteBucketList(coupleId: String, id: String): StoryResponse
+    suspend fun updateRelationshipDate(coupleId: String, date: RelationshipDateDto, label: String, kind: String, occursOn: String, remindAnnually: Boolean): StoryResponse
+    suspend fun deleteRelationshipDate(coupleId: String, id: String): StoryResponse
     fun watchForPartner(coupleId: String, onPaired: () -> Unit)
     fun stopPairingRealtime()
     fun startRealtime(coupleId: String)
@@ -174,6 +189,31 @@ class DefaultHakaRepository @Inject constructor(
 
     override suspend fun getMoods(coupleId: String): MoodResponse = withContext(Dispatchers.IO) {
         client.functions.invoke("get-mood", MoodRequest(coupleId, "")).body<MoodResponse>()
+    }
+
+    override suspend fun getStory(coupleId: String): StoryResponse = story(StoryRequest(coupleId, "list"))
+    override suspend fun addMemory(coupleId: String, title: String, caption: String, occurredOn: String?, photoBase64s: List<String>): StoryResponse = story(StoryRequest(coupleId, "addMemory", title = title, caption = caption, occurredOn = occurredOn, photoBase64s = photoBase64s))
+    override suspend fun addBucketItem(coupleId: String, title: String): StoryResponse = story(StoryRequest(coupleId, "addBucket", title = title))
+    override suspend fun toggleBucketItem(coupleId: String, itemId: String): StoryResponse = command(StoryRequest(coupleId, "toggleBucket", itemId = itemId))
+    override suspend fun addRelationshipDate(coupleId: String, label: String, kind: String, occursOn: String, remindAnnually: Boolean): StoryResponse = story(StoryRequest(coupleId, "addDate", label = label, kind = kind, occurredOn = occursOn, remindAnnually = remindAnnually))
+    override suspend fun updateMemory(coupleId: String, memory: MemoryDto, title: String, caption: String, occurredOn: String?, photoBase64s: List<String>): StoryResponse = command(StoryRequest(coupleId, "updateMemory", itemId = memory.id, title = title, caption = caption, occurredOn = occurredOn, photoPaths = memory.photoKeys, photoBase64s = photoBase64s))
+    override suspend fun deleteMemory(coupleId: String, id: String): StoryResponse = command(StoryRequest(coupleId, "deleteMemory", itemId = id))
+    override suspend fun updateBucketItem(coupleId: String, id: String, title: String): StoryResponse = command(StoryRequest(coupleId, "updateBucket", itemId = id, title = title))
+    override suspend fun deleteBucketItem(coupleId: String, id: String): StoryResponse = command(StoryRequest(coupleId, "deleteBucket", itemId = id))
+    override suspend fun addBucketList(coupleId: String, title: String): StoryResponse = story(StoryRequest(coupleId, "addBucketList", title = title))
+    override suspend fun addBucketListItem(coupleId: String, listId: String, title: String): StoryResponse = story(StoryRequest(coupleId, "addBucketListItem", listId = listId, title = title))
+    override suspend fun updateBucketList(coupleId: String, id: String, title: String): StoryResponse = command(StoryRequest(coupleId, "updateBucketList", listId = id, title = title))
+    override suspend fun deleteBucketList(coupleId: String, id: String): StoryResponse = command(StoryRequest(coupleId, "deleteBucketList", listId = id))
+    override suspend fun updateRelationshipDate(coupleId: String, date: RelationshipDateDto, label: String, kind: String, occursOn: String, remindAnnually: Boolean): StoryResponse = command(StoryRequest(coupleId, "updateDate", itemId = date.id, label = label, kind = kind, occurredOn = occursOn, remindAnnually = remindAnnually))
+    override suspend fun deleteRelationshipDate(coupleId: String, id: String): StoryResponse = command(StoryRequest(coupleId, "deleteDate", itemId = id))
+
+    private suspend fun story(request: StoryRequest): StoryResponse = withContext(Dispatchers.IO) {
+        client.functions.invoke("relationship-story", request)
+        client.functions.invoke("relationship-story", StoryRequest(request.coupleId, "list")).body()
+    }
+    private suspend fun command(request: StoryRequest): StoryResponse = withContext(Dispatchers.IO) {
+        client.functions.invoke("relationship-story", request)
+        StoryResponse()
     }
 
     override fun watchForPartner(coupleId: String, onPaired: () -> Unit) {
