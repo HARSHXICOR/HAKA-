@@ -7,6 +7,22 @@ const date = (value: unknown) => {
   const parsed = new Date(`${value}T00:00:00.000Z`);
   return Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== value ? null : value;
 };
+const optionalDate = (value: unknown) => {
+  if (value === null || value === undefined || value === "") return null;
+  const parsed = date(value);
+  if (!parsed) throw databaseError({ message: "HAKA_INVALID_ARGUMENT" });
+  return parsed;
+};
+const requiredDate = (value: unknown) => {
+  const parsed = date(value);
+  if (!parsed) throw databaseError({ message: "HAKA_INVALID_ARGUMENT" });
+  return parsed;
+};
+const dateKind = (value: unknown) => {
+  const kind = stringValue(value, "kind", 20);
+  if (!["anniversary", "birthday", "custom"].includes(kind)) throw databaseError({ message: "HAKA_INVALID_ARGUMENT" });
+  return kind;
+};
 async function uploadPhotos(admin: Awaited<ReturnType<typeof clients>>["admin"], coupleId: string, value: unknown): Promise<string[]> {
   const images = Array.isArray(value) ? value : [];
   if (images.length > 8 || images.some((image) => typeof image !== "string" || image.length > 2_800_000)) throw databaseError({ message: "HAKA_INVALID_ARGUMENT" });
@@ -42,12 +58,12 @@ Deno.serve(async (request) => {
     }
     else if (action === "addMemory") {
       const paths = await uploadPhotos(admin, coupleId, input.photoBase64s);
-      ({ data, error } = await admin.rpc("backend_story_add_memory_v2", { p_uid:user.id,p_couple_id:coupleId,p_title:stringValue(input.title,"title",80),p_caption:typeof input.caption === "string" ? input.caption : "",p_occurred_on:date(input.occurredOn),p_photo_paths:paths }));
+      ({ data, error } = await admin.rpc("backend_story_add_memory_v2", { p_uid:user.id,p_couple_id:coupleId,p_title:stringValue(input.title,"title",80),p_caption:typeof input.caption === "string" ? input.caption : "",p_occurred_on:optionalDate(input.occurredOn),p_photo_paths:paths }));
     }
     else if (action === "addBucket") ({ data, error } = await admin.rpc("backend_story_add_bucket", { p_uid:user.id,p_couple_id:coupleId,p_title:stringValue(input.title,"title",140) }));
     else if (action === "toggleBucket") ({ data, error } = await admin.rpc("backend_story_toggle_bucket", { p_uid:user.id,p_couple_id:coupleId,p_item_id:stringValue(input.itemId,"itemId",36) }));
-    else if (action === "addDate") ({ data, error } = await admin.rpc("backend_story_add_date", { p_uid:user.id,p_couple_id:coupleId,p_label:stringValue(input.label,"label",80),p_kind:stringValue(input.kind,"kind",20),p_occurs_on:date(input.occurredOn),p_remind_annually:input.remindAnnually !== false }));
-    else if (action === "updateMemory") { const newPaths = await uploadPhotos(admin,coupleId,input.photoBase64s); const kept = Array.isArray(input.photoPaths) ? input.photoPaths.filter((p): p is string => typeof p === "string" && p.startsWith(`${coupleId}/`)) : []; ({ data,error } = await admin.rpc("backend_story_update_memory", {p_uid:user.id,p_couple_id:coupleId,p_id:stringValue(input.itemId,"itemId",36),p_title:stringValue(input.title,"title",80),p_caption:typeof input.caption === "string"?input.caption:"",p_occurred_on:date(input.occurredOn),p_photo_paths:[...kept,...newPaths]})); }
+    else if (action === "addDate") ({ data, error } = await admin.rpc("backend_story_add_date", { p_uid:user.id,p_couple_id:coupleId,p_label:stringValue(input.label,"label",80),p_kind:dateKind(input.kind),p_occurs_on:requiredDate(input.occurredOn),p_remind_annually:input.remindAnnually !== false }));
+    else if (action === "updateMemory") { const newPaths = await uploadPhotos(admin,coupleId,input.photoBase64s); const kept = Array.isArray(input.photoPaths) ? input.photoPaths.filter((p): p is string => typeof p === "string" && p.startsWith(`${coupleId}/`)) : []; ({ data,error } = await admin.rpc("backend_story_update_memory", {p_uid:user.id,p_couple_id:coupleId,p_id:stringValue(input.itemId,"itemId",36),p_title:stringValue(input.title,"title",80),p_caption:typeof input.caption === "string"?input.caption:"",p_occurred_on:optionalDate(input.occurredOn),p_photo_paths:[...kept,...newPaths]})); }
     else if (action === "deleteMemory") {
       ({ data,error } = await admin.rpc("backend_story_delete_memory", {p_uid:user.id,p_couple_id:coupleId,p_id:stringValue(input.itemId,"itemId",36)}));
       if (!error && Array.isArray(data) && data.length) {
@@ -61,7 +77,7 @@ Deno.serve(async (request) => {
     else if (action === "addBucketListItem") ({ data,error } = await admin.rpc("backend_story_add_bucket_to_list", {p_uid:user.id,p_couple_id:coupleId,p_list_id:stringValue(input.listId,"listId",36),p_title:stringValue(input.title,"title",140)}));
     else if (action === "updateBucketList") ({ data,error } = await admin.rpc("backend_story_update_bucket_list", {p_uid:user.id,p_couple_id:coupleId,p_id:stringValue(input.listId,"listId",36),p_title:stringValue(input.title,"title",80)}));
     else if (action === "deleteBucketList") ({ data,error } = await admin.rpc("backend_story_delete_bucket_list", {p_uid:user.id,p_couple_id:coupleId,p_id:stringValue(input.listId,"listId",36)}));
-    else if (action === "updateDate") ({ data,error } = await admin.rpc("backend_story_update_date", {p_uid:user.id,p_couple_id:coupleId,p_id:stringValue(input.itemId,"itemId",36),p_label:stringValue(input.label,"label",80),p_kind:stringValue(input.kind,"kind",20),p_occurs_on:date(input.occurredOn),p_remind_annually:input.remindAnnually!==false}));
+    else if (action === "updateDate") ({ data,error } = await admin.rpc("backend_story_update_date", {p_uid:user.id,p_couple_id:coupleId,p_id:stringValue(input.itemId,"itemId",36),p_label:stringValue(input.label,"label",80),p_kind:dateKind(input.kind),p_occurs_on:requiredDate(input.occurredOn),p_remind_annually:input.remindAnnually!==false}));
     else if (action === "deleteDate") ({ data,error } = await admin.rpc("backend_story_delete_date", {p_uid:user.id,p_couple_id:coupleId,p_id:stringValue(input.itemId,"itemId",36)}));
     else throw databaseError({ message: "HAKA_INVALID_ARGUMENT" });
     if (error) throw databaseError(error); return json(data ?? { ok:true });

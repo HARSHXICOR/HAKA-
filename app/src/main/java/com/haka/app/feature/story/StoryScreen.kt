@@ -5,12 +5,18 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items as gridItems
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.draw.clip
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material.icons.Icons
@@ -31,6 +37,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -51,19 +59,25 @@ import android.net.Uri
 import android.app.DatePickerDialog
 import java.io.ByteArrayOutputStream
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.util.Calendar
 import coil.compose.AsyncImage
 import javax.inject.Inject
 
-private val StoryTop = Color(0xFF100F25); private val StoryBottom = Color(0xFF24152B)
-private val Ink = Color.White; private val Soft = Color(0xFFCEC5D4); private val Accent = Color(0xFFFF779A); private val Panel = Color(0x331E1B2B)
+private val StoryTop = Color(0xFF080815); private val StoryBottom = Color(0xFF1A1022)
+private val Ink = Color(0xFFF9F5FC); private val Soft = Color(0xFFBDB3C7); private val Accent = Color(0xFFFF5C91); private val Purple = Color(0xFF9B5CFF); private val Panel = Color(0xB31B1928)
+private val StoryGradient = Brush.linearGradient(listOf(Color(0xFFFF5F8F), Color(0xFFE747A1), Purple))
 data class StoryUiState(val data: StoryResponse = StoryResponse(), val loading: Boolean = true, val message: String? = null)
 
 @HiltViewModel class StoryViewModel @Inject constructor(private val repository: HakaRepository) : ViewModel() {
     private val _state = MutableStateFlow(StoryUiState()); val state: StateFlow<StoryUiState> = _state
     fun load(coupleId: String) = viewModelScope.launch { runCatching { repository.getStory(coupleId) }.onSuccess { _state.value = StoryUiState(it, false) }.onFailure { _state.value = _state.value.copy(loading = false, message = "Could not load your shared story.") } }
     private fun update(work: suspend () -> StoryResponse) = viewModelScope.launch { runCatching { work() }.onSuccess { _state.value = StoryUiState(it, false, "Saved for both of you.") }.onFailure { _state.value = _state.value.copy(message = "Could not save that right now.") } }
-    fun memory(c: String, t: String, x: String, d: String?, photos: List<String>) = update { repository.addMemory(c,t,x,d,photos) }
+    fun memory(c: String, t: String, x: String, d: String?, photos: List<String>) {
+        if (!validOptionalDate(d)) { _state.value = _state.value.copy(message = "Please select a valid date."); return }
+        update { repository.addMemory(c,t,x,d,photos) }
+    }
     fun bucket(c: String, t: String) = update { repository.addBucketItem(c,t) }
     fun bucketList(c:String,t:String)=update{repository.addBucketList(c,t)}
     fun bucketListItem(c:String,listId:String,t:String)=update{repository.addBucketListItem(c,listId,t)}
@@ -79,10 +93,16 @@ data class StoryUiState(val data: StoryResponse = StoryResponse(), val loading: 
     fun deleteBucket(c: String, id: String) = viewModelScope.launch { runCatching { repository.deleteBucketItem(c,id) }.onSuccess { _state.value = _state.value.copy(data = _state.value.data.copy(bucketItems = _state.value.data.bucketItems.filterNot { it.id == id }), message = "Bucket item deleted.") }.onFailure { _state.value = _state.value.copy(message = "Could not delete that item.") } }
     fun deleteDate(c: String, id: String) = viewModelScope.launch { runCatching { repository.deleteRelationshipDate(c,id) }.onSuccess { _state.value = _state.value.copy(data = _state.value.data.copy(dates = _state.value.data.dates.filterNot { it.id == id }), message = "Date deleted.") }.onFailure { _state.value = _state.value.copy(message = "Could not delete that date.") } }
     fun editBucket(c:String,id:String,title:String)=viewModelScope.launch{runCatching{repository.updateBucketItem(c,id,title)}.onSuccess{_state.value=_state.value.copy(data=_state.value.data.copy(bucketItems=_state.value.data.bucketItems.map{if(it.id==id)it.copy(title=title)else it}),message="Item updated.")}.onFailure{_state.value=_state.value.copy(message="Could not update that item.")}}
-    fun editDate(c:String,d:RelationshipDateDto,label:String,kind:String,date:String,remind:Boolean)=viewModelScope.launch{runCatching{repository.updateRelationshipDate(c,d,label,kind,date,remind)}.onSuccess{_state.value=_state.value.copy(data=_state.value.data.copy(dates=_state.value.data.dates.map{if(it.id==d.id)it.copy(label=label,kind=kind,occursOn=date,remindAnnually=remind)else it}),message="Date updated.")}.onFailure{_state.value=_state.value.copy(message="Could not update that date.")}}
-    fun editMemory(c:String,m:MemoryDto,title:String,caption:String,date:String?,keys:List<String>,newPhotos:List<String>)=viewModelScope.launch{runCatching{repository.updateMemory(c,m.copy(photoKeys=keys),title,caption,date,newPhotos)}.onSuccess{load(c);_state.value=_state.value.copy(message="Memory updated.")}.onFailure{_state.value=_state.value.copy(message="Could not update that memory.")}}
+    fun editDate(c:String,d:RelationshipDateDto,label:String,kind:String,date:String,remind:Boolean) {
+        if (!validDate(date) || kind !in setOf("anniversary","birthday","custom")) { _state.value=_state.value.copy(message="Please select a valid date.");return }
+        viewModelScope.launch{runCatching{repository.updateRelationshipDate(c,d,label,kind,date,remind)}.onSuccess{_state.value=_state.value.copy(data=_state.value.data.copy(dates=_state.value.data.dates.map{if(it.id==d.id)it.copy(label=label,kind=kind,occursOn=date,remindAnnually=remind)else it}),message="Date updated.")}.onFailure{_state.value=_state.value.copy(message="Could not update that date.")}}
+    }
+    fun editMemory(c:String,m:MemoryDto,title:String,caption:String,date:String?,keys:List<String>,newPhotos:List<String>) {
+        if (!validOptionalDate(date)) { _state.value=_state.value.copy(message="Please select a valid date.");return }
+        viewModelScope.launch{runCatching{repository.updateMemory(c,m.copy(photoKeys=keys),title,caption,date,newPhotos)}.onSuccess{load(c);_state.value=_state.value.copy(message="Memory updated.")}.onFailure{_state.value=_state.value.copy(message="Could not update that memory.")}}
+    }
     fun date(c: String, l: String, k: String, d: String, remind:Boolean) {
-        if (runCatching { LocalDate.parse(d) }.isFailure || k !in setOf("anniversary", "birthday", "custom")) { _state.value = _state.value.copy(message = "Use a real date (YYYY-MM-DD) and anniversary, birthday, or custom."); return }
+        if (!validDate(d) || k !in setOf("anniversary", "birthday", "custom")) { _state.value = _state.value.copy(message = "Please select a valid date."); return }
         update { repository.addRelationshipDate(c,l,k,d,remind) }
     }
 }
@@ -94,7 +114,6 @@ data class StoryUiState(val data: StoryResponse = StoryResponse(), val loading: 
     val uiScope = rememberCoroutineScope()
     LaunchedEffect(state.message) { state.message?.let { snackbarHostState.showSnackbar(it) } }
     var dialog by remember { mutableStateOf<String?>(null) }
-    var showAllMemories by remember { mutableStateOf(false) }
     var selectedBucket by remember { mutableStateOf<BucketItemDto?>(null) }
     var editingBucket by remember { mutableStateOf<BucketItemDto?>(null) }
     var selectedDate by remember { mutableStateOf<RelationshipDateDto?>(null) }
@@ -111,7 +130,8 @@ data class StoryUiState(val data: StoryResponse = StoryResponse(), val loading: 
     Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(StoryTop, StoryBottom)))) {
         when(destination) {
             "summary" -> StorySummary(state.data, { destination="memories" }, { destination="bucket" }, { destination="dates" })
-            "memories" -> MemoriesPage(state.data.memories, { destination="summary" }, { dialog="memory" }, { selectedMemory=it })
+            "memories" -> MemoriesPage(state.data.memories, { destination="summary" }, { dialog="memory" }, { selectedMemory=it }, { destination="allMemories" })
+            "allMemories" -> AllMemoriesPage(state.data.memories, { destination="memories" }, { dialog="memory" }, { selectedMemory=it })
             "bucket" -> BucketPage(state.data, { destination="summary" }, { dialog="bucket" }, { selectedBucket=it }, { selectedList=it })
             "dates" -> DatesPage(state.data.dates, { destination="summary" }, { dialog="date" }, { selectedDate=it })
         }
@@ -122,7 +142,6 @@ data class StoryUiState(val data: StoryResponse = StoryResponse(), val loading: 
         "bucket" -> AddBucketDialog({dialog=null},{t->if(t.isBlank())uiScope.launch{snackbarHostState.showSnackbar("Please enter an item title.")}else{coupleId?.let{viewModel.bucket(it,t)};dialog=null}}){t->if(t.isBlank())uiScope.launch{snackbarHostState.showSnackbar("Please enter a list title.")}else{coupleId?.let{viewModel.bucketList(it,t)};dialog=null}}
         "date" -> AddDateDialog({dialog=null},{uiScope.launch{snackbarHostState.showSnackbar("Please select a valid date.")}}) { l,k,d,r -> if(l.isBlank())uiScope.launch{snackbarHostState.showSnackbar("Please enter an event name.")}else{coupleId?.let{viewModel.date(it,l,k,d,r)};dialog=null} }
     }
-    if (showAllMemories) AlertDialog(onDismissRequest={showAllMemories=false},title={Text("All memories")},text={Column(Modifier.verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(10.dp)) { state.data.memories.forEach { MemoryCard(it) { selectedMemory=it; showAllMemories=false } } }},confirmButton={TextButton(onClick={showAllMemories=false}){Text("Done")}})
     coupleId?.let { id ->
         selectedBucket?.let { item -> ItemSheet(item.title,"Bucket list item",{selectedBucket=null},{viewModel.toggle(id,item.id);selectedBucket=null},{editingBucket=item;selectedBucket=null},{viewModel.deleteBucket(id,item.id);selectedBucket=null}) }
         editingBucket?.let { item -> EditTextDialog("Edit bucket item",item.title,{editingBucket=null}) { viewModel.editBucket(id,item.id,it);editingBucket=null } }
@@ -143,12 +162,80 @@ data class StoryUiState(val data: StoryResponse = StoryResponse(), val loading: 
     SummaryTile("Important Dates","${data.dates.size} dates",Icons.Rounded.DateRange,dates) { data.dates.take(2).forEach { Text("${it.label}  •  ${it.occursOn}",color=Soft) } }
 }
 @Composable private fun SummaryTile(title:String,subtitle:String,icon:androidx.compose.ui.graphics.vector.ImageVector,click:()->Unit,preview:@Composable ColumnScope.()->Unit) = Column(Modifier.fillMaxWidth().clickable(onClick=click).background(Panel,RoundedCornerShape(20.dp)).border(1.dp,Color(0x33FFFFFF),RoundedCornerShape(20.dp)).padding(16.dp),verticalArrangement=Arrangement.spacedBy(10.dp)) { Row(verticalAlignment=Alignment.CenterVertically) { Icon(icon,null,tint=Accent); Spacer(Modifier.width(10.dp)); Column(Modifier.weight(1f)){Text(title,color=Ink,fontWeight=FontWeight.Bold,style=MaterialTheme.typography.titleLarge);Text(subtitle,color=Soft,style=MaterialTheme.typography.labelMedium)};Icon(Icons.Rounded.ChevronRight,null,tint=Soft) };preview() }
-@Composable private fun PageHeader(title:String,back:()->Unit,add:()->Unit) = Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) { IconButton(onClick=back){Icon(Icons.Rounded.ArrowBack,"Back",tint=Ink)};Text(title,color=Ink,style=MaterialTheme.typography.headlineMedium,fontWeight=FontWeight.Bold,modifier=Modifier.weight(1f));IconButton(onClick=add){Icon(Icons.Rounded.Add,"Add",tint=Accent)} }
-@Composable private fun MemoriesPage(items:List<MemoryDto>,back:()->Unit,add:()->Unit,open:(MemoryDto)->Unit) = Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp).navigationBarsPadding(),verticalArrangement=Arrangement.spacedBy(12.dp)) { PageHeader("Memories",back,add); if(items.isEmpty()) Empty("No memories yet."); items.chunked(2).forEach { row -> Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(10.dp)) { row.forEach { memory -> Column(Modifier.weight(1f).clickable{open(memory)}.background(Panel,RoundedCornerShape(16.dp)).padding(10.dp)) { AsyncImage(model=memory.photoPaths.firstOrNull(),contentDescription=null,modifier=Modifier.fillMaxWidth().height(130.dp).background(Color.DarkGray,RoundedCornerShape(10.dp)));Spacer(Modifier.height(8.dp));Text(memory.title,color=Ink,fontWeight=FontWeight.Bold,maxLines=1);memory.occurredOn?.let{Text(it,color=Soft,style=MaterialTheme.typography.labelSmall)} } }; if(row.size==1) Spacer(Modifier.weight(1f)) } } }
-@Composable private fun BucketPage(data:StoryResponse,back:()->Unit,add:()->Unit,open:(BucketItemDto)->Unit,openList:(BucketListDto)->Unit) = Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp).navigationBarsPadding(),verticalArrangement=Arrangement.spacedBy(12.dp)) { PageHeader("Bucket List",back,add); data.bucketLists.forEach { list -> StoryCard(list.title,"${data.bucketItems.count{it.listId==list.id}} items",null){openList(list)} };data.bucketItems.filter{it.listId==null}.forEach{item->BucketRow(item){open(item)}};if(data.bucketLists.isEmpty()&&data.bucketItems.isEmpty())Empty("Add a single item or a titled list.") }
-@Composable private fun DatesPage(items:List<RelationshipDateDto>,back:()->Unit,add:()->Unit,open:(RelationshipDateDto)->Unit) = Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp).navigationBarsPadding(),verticalArrangement=Arrangement.spacedBy(12.dp)) { PageHeader("Important Dates",back,add);items.forEach{StoryCard(it.label,it.kind.replaceFirstChar(Char::uppercase),it.occursOn){open(it)}};if(items.isEmpty())Empty("No important dates yet.") }
+@Composable private fun PageHeader(title:String,back:()->Unit,add:()->Unit) = Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
+    IconButton(onClick=back){Icon(Icons.Rounded.ArrowBack,"Back",tint=Ink)}
+    Text(title,color=Ink,style=MaterialTheme.typography.headlineMedium,fontWeight=FontWeight.Bold)
+    Text("♡",color=Accent,style=MaterialTheme.typography.headlineMedium,modifier=Modifier.padding(start=6.dp).weight(1f))
+    Box(Modifier.size(46.dp).clip(CircleShape).background(StoryGradient).clickable(onClick=add),contentAlignment=Alignment.Center){Icon(Icons.Rounded.Add,"Add",tint=Color.White)}
+}
+
+@Composable private fun MemoriesPage(items:List<MemoryDto>,back:()->Unit,add:()->Unit,open:(MemoryDto)->Unit,showAll:()->Unit) = LazyColumn(
+    Modifier.fillMaxSize().padding(horizontal=16.dp).navigationBarsPadding(),
+    contentPadding=PaddingValues(top=14.dp,bottom=24.dp),verticalArrangement=Arrangement.spacedBy(12.dp)
+) {
+    item { PageHeader("Memories",back,add); Spacer(Modifier.height(18.dp)); Text("Your memories",color=Ink,fontWeight=FontWeight.SemiBold);Text("Moments we’ll always cherish.",color=Soft) }
+    if(items.isEmpty()) item { Empty("No memories yet. Add a moment you want to keep forever.") }
+    items(items.take(5),key={it.id}) { memory -> PremiumMemoryCard(memory){open(memory)} }
+    if(items.isNotEmpty()) item { GradientOutlineButton(if(items.size>5) "Show all ${items.size} memories" else "Browse all memories",showAll) }
+}
+
+@Composable private fun AllMemoriesPage(items:List<MemoryDto>,back:()->Unit,add:()->Unit,open:(MemoryDto)->Unit) {
+    var year by rememberSaveable { mutableStateOf("All") }
+    val years=remember(items){listOf("All")+items.mapNotNull{it.occurredOn?.take(4)}.distinct().sortedDescending()}
+    val filtered=if(year=="All")items else items.filter{it.occurredOn?.startsWith(year)==true}
+    LazyVerticalGrid(columns=GridCells.Fixed(2),modifier=Modifier.fillMaxSize().padding(horizontal=16.dp).navigationBarsPadding(),contentPadding=PaddingValues(top=14.dp,bottom=24.dp),horizontalArrangement=Arrangement.spacedBy(10.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
+        item(span={androidx.compose.foundation.lazy.grid.GridItemSpan(2)}) { Column { PageHeader("All Memories",back,add);Spacer(Modifier.height(12.dp));LazyRow(horizontalArrangement=Arrangement.spacedBy(8.dp)){items(years){value->RomanticChip(value,year==value){year=value}}};Spacer(Modifier.height(6.dp)) } }
+        if(filtered.isEmpty()) item(span={androidx.compose.foundation.lazy.grid.GridItemSpan(2)}){Empty("No memories in this collection.")}
+        gridItems(filtered,key={it.id}){memory->Column(Modifier.clip(RoundedCornerShape(16.dp)).background(Panel).border(1.dp,Color(0x28FF6FA3),RoundedCornerShape(16.dp)).clickable{open(memory)}.padding(8.dp)){AsyncImage(memory.photoPaths.firstOrNull(),null,Modifier.fillMaxWidth().aspectRatio(1f).clip(RoundedCornerShape(11.dp)).background(Color(0xFF282334)),contentScale=ContentScale.Crop);Spacer(Modifier.height(8.dp));Text(memory.title,color=Ink,fontWeight=FontWeight.SemiBold,maxLines=1,overflow=TextOverflow.Ellipsis);Text(prettyDate(memory.occurredOn),color=Soft,style=MaterialTheme.typography.labelSmall)}}
+    }
+}
+
+@Composable private fun BucketPage(data:StoryResponse,back:()->Unit,add:()->Unit,open:(BucketItemDto)->Unit,openList:(BucketListDto)->Unit) {
+    var tab by rememberSaveable{mutableStateOf("My Lists")};val singles=data.bucketItems.filter{it.listId==null}
+    LazyColumn(Modifier.fillMaxSize().padding(horizontal=16.dp).navigationBarsPadding(),contentPadding=PaddingValues(top=14.dp,bottom=24.dp),verticalArrangement=Arrangement.spacedBy(10.dp)){
+        item{PageHeader("Bucket List",back,add);Spacer(Modifier.height(18.dp));Row(horizontalArrangement=Arrangement.spacedBy(8.dp)){RomanticChip("My Lists",tab=="My Lists"){tab="My Lists"};RomanticChip("Single Items",tab=="Single Items"){tab="Single Items"}};Spacer(Modifier.height(10.dp));Text(if(tab=="My Lists")"Our Lists" else "Little dreams together",color=Ink,style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)}
+        if(tab=="My Lists") {
+            if(data.bucketLists.isEmpty())item{Empty("Create your first shared list.")}
+            items(data.bucketLists,key={it.id}){list->val children=data.bucketItems.filter{it.listId==list.id};BucketGroupCard(list,children){openList(list)}}
+        } else {
+            if(singles.isEmpty())item{Empty("Add a standalone dream for the two of you.")}
+            items(singles,key={it.id}){item->BucketRow(item){open(item)}}
+        }
+    }
+}
+
+@Composable private fun DatesPage(items:List<RelationshipDateDto>,back:()->Unit,add:()->Unit,open:(RelationshipDateDto)->Unit) {
+    var filter by rememberSaveable{mutableStateOf("All")};val choices=listOf("All","Anniversaries","Birthdays","Custom");val visible=items.filter{filter=="All"||when(filter){"Anniversaries"->it.kind=="anniversary";"Birthdays"->it.kind=="birthday";else->it.kind=="custom"}}
+    LazyColumn(Modifier.fillMaxSize().padding(horizontal=16.dp).navigationBarsPadding(),contentPadding=PaddingValues(top=14.dp,bottom=24.dp),verticalArrangement=Arrangement.spacedBy(10.dp)){
+        item{PageHeader("Important Dates",back,add);Spacer(Modifier.height(18.dp));LazyRow(horizontalArrangement=Arrangement.spacedBy(8.dp)){items(choices){choice->RomanticChip(choice,filter==choice){filter=choice}}};Spacer(Modifier.height(8.dp))}
+        if(visible.isEmpty())item{Empty("No meaningful dates here yet.")}
+        items(visible,key={it.id}){date->ImportantDateCard(date){open(date)}}
+        if(items.isNotEmpty())item{ReminderCallout()}
+    }
+}
 @Composable private fun SectionHeader(title: String, icon: androidx.compose.ui.graphics.vector.ImageVector, add: () -> Unit) = Row(Modifier.fillMaxWidth().padding(top=8.dp), verticalAlignment=Alignment.CenterVertically) { Icon(icon,null,tint=Accent); Spacer(Modifier.width(8.dp)); Text(title,color=Ink,style=MaterialTheme.typography.titleLarge,fontWeight=FontWeight.Bold,modifier=Modifier.weight(1f)); IconButton(onClick=add) { Icon(Icons.Rounded.Add,"Add $title",tint=Accent) } }
 @Composable private fun StoryCard(title: String, detail: String, date: String?, click: () -> Unit = {}) = Column(Modifier.fillMaxWidth().clickable(onClick=click).background(Panel,RoundedCornerShape(18.dp)).border(1.dp,Color(0x33FFFFFF),RoundedCornerShape(18.dp)).padding(16.dp)) { Text(title,color=Ink,fontWeight=FontWeight.Bold,style=MaterialTheme.typography.titleMedium); Spacer(Modifier.height(4.dp)); Text(detail,color=Soft); date?.let { Text(it,color=Accent,style=MaterialTheme.typography.labelMedium,modifier=Modifier.padding(top=8.dp)) } }
+@Composable private fun RomanticChip(label:String,selected:Boolean,onClick:()->Unit)=Surface(onClick=onClick,shape=RoundedCornerShape(50),color=Color.Transparent,border=if(selected)null else androidx.compose.foundation.BorderStroke(1.dp,Color(0x2EFFFFFF))){Box(Modifier.background(if(selected)StoryGradient else Brush.linearGradient(listOf(Color.Transparent,Color.Transparent))).padding(horizontal=20.dp,vertical=9.dp)){Text(label,color=if(selected)Color.White else Soft,style=MaterialTheme.typography.labelLarge)}}
+
+@Composable private fun GradientOutlineButton(label:String,onClick:()->Unit)=Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(StoryGradient).padding(1.dp).clip(RoundedCornerShape(21.dp)).background(Color(0xFF171321)).clickable(onClick=onClick).padding(vertical=14.dp),contentAlignment=Alignment.Center){Text("$label  ›",color=Accent,fontWeight=FontWeight.SemiBold)}
+
+@Composable private fun PremiumMemoryCard(memory:MemoryDto,click:()->Unit)=Row(Modifier.fillMaxWidth().heightIn(min=132.dp).clip(RoundedCornerShape(18.dp)).background(Panel).border(1.dp,Color(0x2BFF72A6),RoundedCornerShape(18.dp)).clickable(onClick=click)){
+    Box(Modifier.width(150.dp).fillMaxHeight().heightIn(min=132.dp)){
+        if(memory.photoPaths.isEmpty())Box(Modifier.fillMaxSize().background(Brush.linearGradient(listOf(Color(0xFF34233F),Color(0xFF171524)))),contentAlignment=Alignment.Center){Icon(Icons.Rounded.PhotoLibrary,null,tint=Accent)}
+        else { val pager=rememberPagerState{memory.photoPaths.size};HorizontalPager(pager,Modifier.fillMaxSize()){page->AsyncImage(memory.photoPaths[page],"Photo ${page+1} for ${memory.title}",Modifier.fillMaxSize(),contentScale=ContentScale.Crop)};Surface(color=Color(0xB3000000),shape=RoundedCornerShape(8.dp),modifier=Modifier.align(Alignment.BottomStart).padding(8.dp)){Text("▣ ${memory.photoPaths.size}",color=Color.White,style=MaterialTheme.typography.labelSmall,modifier=Modifier.padding(horizontal=7.dp,vertical=3.dp))}}
+    }
+    Column(Modifier.weight(1f).padding(14.dp)){Row(verticalAlignment=Alignment.CenterVertically){Text(memory.title,color=Ink,fontWeight=FontWeight.Bold,style=MaterialTheme.typography.titleMedium,maxLines=1,overflow=TextOverflow.Ellipsis,modifier=Modifier.weight(1f));Text("♥",color=Accent);Text("⋮",color=Soft,style=MaterialTheme.typography.titleLarge,modifier=Modifier.padding(start=8.dp))};Text(prettyDate(memory.occurredOn),color=Soft,style=MaterialTheme.typography.labelMedium,modifier=Modifier.padding(top=3.dp));if(memory.caption.isNotBlank())Text(memory.caption,color=Soft,maxLines=3,overflow=TextOverflow.Ellipsis,modifier=Modifier.padding(top=9.dp))}
+}
+
+@Composable private fun BucketGroupCard(list:BucketListDto,items:List<BucketItemDto>,click:()->Unit){val done=items.count{it.completedAt!=null};Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(Panel).border(1.dp,Color(0x28FF72A6),RoundedCornerShape(18.dp)).clickable(onClick=click).padding(16.dp)){Row(verticalAlignment=Alignment.CenterVertically){Box(Modifier.size(42.dp).clip(RoundedCornerShape(13.dp)).background(StoryGradient),contentAlignment=Alignment.Center){Text("♥",color=Color.White)};Spacer(Modifier.width(12.dp));Column(Modifier.weight(1f)){Text(list.title,color=Ink,fontWeight=FontWeight.Bold,style=MaterialTheme.typography.titleMedium);Text("${items.size} items  •  $done completed",color=Soft,style=MaterialTheme.typography.labelMedium)};Icon(Icons.Rounded.ChevronRight,null,tint=Ink)};if(items.isNotEmpty()){Spacer(Modifier.height(12.dp));LinearProgressIndicator(progress={done.toFloat()/items.size},modifier=Modifier.fillMaxWidth().height(5.dp).clip(CircleShape),color=Accent,trackColor=Color(0x22FFFFFF))}}}
+
+@Composable private fun ImportantDateCard(item:RelationshipDateDto,click:()->Unit){val emoji=when(item.kind){"anniversary"->"♥";"birthday"->"🎁";else->"▣"};val status=relativeDate(item.occursOn,item.remindAnnually);Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(Panel).border(1.dp,Color(0x28FF72A6),RoundedCornerShape(18.dp)).clickable(onClick=click).padding(14.dp),verticalAlignment=Alignment.CenterVertically){Box(Modifier.size(48.dp).clip(CircleShape).background(Brush.linearGradient(listOf(Accent.copy(alpha=.55f),Purple.copy(alpha=.35f)))),contentAlignment=Alignment.Center){Text(emoji,color=Color.White,style=MaterialTheme.typography.titleLarge)};Spacer(Modifier.width(12.dp));Column(Modifier.weight(1f)){Text(item.label,color=Ink,fontWeight=FontWeight.Bold,style=MaterialTheme.typography.titleMedium);Text(prettyDate(item.occursOn),color=Soft,style=MaterialTheme.typography.labelMedium);Text(item.kind.replaceFirstChar(Char::uppercase),color=Soft,style=MaterialTheme.typography.labelSmall)};Text(status,color=if(status=="Passed")Color(0xFF55DCA3) else Accent,fontWeight=FontWeight.SemiBold)}
+}
+
+@Composable private fun ReminderCallout()=Row(Modifier.fillMaxWidth().padding(top=12.dp).clip(RoundedCornerShape(18.dp)).background(Brush.linearGradient(listOf(Color(0x33251A2D),Color(0x33421836)))).border(1.dp,Accent.copy(alpha=.6f),RoundedCornerShape(18.dp)).padding(16.dp),verticalAlignment=Alignment.Top){Text("💕",style=MaterialTheme.typography.headlineSmall);Spacer(Modifier.width(12.dp));Column{Text("Never miss an important day",color=Accent,fontWeight=FontWeight.Bold);Text("We’ll remind you before every special date.",color=Soft)}}
+
+private fun prettyDate(value:String?):String { if(value.isNullOrBlank())return "No date";return runCatching{LocalDate.parse(value).format(DateTimeFormatter.ofPattern("dd MMM yyyy"))}.getOrElse{"Date unavailable"} }
+private fun relativeDate(value:String,annual:Boolean):String=runCatching{val original=LocalDate.parse(value);val today=LocalDate.now();val target=if(annual){var next=original.withYear(today.year);if(next.isBefore(today))next=next.plusYears(1);next}else original;val days=ChronoUnit.DAYS.between(today,target);when{!annual&&days<0->"Passed";days==0L->"Today";else->"In $days days"}}.getOrElse{"Unavailable"}
 @Composable private fun MemoryCard(memory: MemoryDto, click: () -> Unit) = Column(Modifier.fillMaxWidth().clickable(onClick=click).background(Panel,RoundedCornerShape(18.dp)).border(1.dp,Color(0x33FFFFFF),RoundedCornerShape(18.dp)).padding(16.dp)) { if(memory.photoPaths.isNotEmpty()) { LazyRow(horizontalArrangement=Arrangement.spacedBy(8.dp),modifier=Modifier.fillMaxWidth()) { items(memory.photoPaths.take(5)) { photo -> AsyncImage(model=photo, contentDescription="Photo for ${memory.title}", modifier=Modifier.width(250.dp).height(180.dp).background(Color(0x22111111),RoundedCornerShape(12.dp))) } };if(memory.photoPaths.size>5)Text("View all ${memory.photoPaths.size} photos",color=Accent,style=MaterialTheme.typography.labelMedium,modifier=Modifier.padding(top=6.dp));Spacer(Modifier.height(12.dp)) }; Text(memory.title,color=Ink,fontWeight=FontWeight.Bold,style=MaterialTheme.typography.titleMedium); if(memory.caption.isNotBlank()) { Spacer(Modifier.height(4.dp)); Text(memory.caption,color=Soft) }; memory.occurredOn?.let { Text(it,color=Accent,style=MaterialTheme.typography.labelMedium,modifier=Modifier.padding(top=8.dp)) } }
 @Composable private fun BucketRow(item: BucketItemDto, toggle: () -> Unit) = Row(Modifier.fillMaxWidth().clickable(onClick=toggle).background(Panel,RoundedCornerShape(18.dp)).padding(16.dp),verticalAlignment=Alignment.CenterVertically) { Icon(if(item.completedAt==null) Icons.Rounded.Circle else Icons.Rounded.CheckCircle,null,tint=if(item.completedAt==null) Soft else Accent); Spacer(Modifier.width(12.dp)); Text(item.title,color=if(item.completedAt==null) Ink else Soft,style=MaterialTheme.typography.titleMedium) }
 @Composable private fun Empty(text: String) = Text(text,color=Soft,modifier=Modifier.fillMaxWidth().background(Panel,RoundedCornerShape(18.dp)).padding(16.dp))
@@ -221,7 +308,19 @@ private fun AddMemoryDialog(photos:List<String>,pick:()->Unit,remove:(Int)->Unit
 @Composable private fun KindPicker(value:String,change:(String)->Unit)=Row(horizontalArrangement=Arrangement.spacedBy(4.dp)){listOf("anniversary","birthday","custom").forEach{FilterChip(selected=value==it,onClick={change(it)},label={Text(it.replaceFirstChar(Char::uppercase),style=MaterialTheme.typography.labelSmall)})}}
 @Composable private fun StoryDialog(title:String,dismiss:()->Unit,save:()->Unit,content:@Composable ColumnScope.()->Unit) = AlertDialog(onDismissRequest=dismiss,title={Text(title)},text={Column(content=content)},confirmButton={TextButton(onClick=save){Text("Save",color=Accent)}},dismissButton={TextButton(onClick=dismiss){Text("Cancel")}})
 @Composable private fun Field(value:String, change:(String)->Unit, hint:String) = OutlinedTextField(value=value,onValueChange=change,label={Text(hint)},modifier=Modifier.fillMaxWidth().padding(vertical=4.dp),singleLine=true)
-@Composable private fun DateField(value: String?, change: (String) -> Unit, hint: String) { val context=LocalContext.current; val cal=remember { Calendar.getInstance() }; OutlinedTextField(value=value ?: "",onValueChange={},readOnly=true,label={Text(hint)},modifier=Modifier.fillMaxWidth().padding(vertical=4.dp).clickable { DatePickerDialog(context,{_,year,month,day -> change("%04d-%02d-%02d".format(year,month+1,day))},cal.get(Calendar.YEAR),cal.get(Calendar.MONTH),cal.get(Calendar.DAY_OF_MONTH)).show() },trailingIcon={Icon(Icons.Rounded.DateRange,null,tint=Accent)}) }
+@Composable private fun DateField(value: String?, change: (String) -> Unit, hint: String) {
+    val context=LocalContext.current
+    val openPicker = {
+        val initial=runCatching{value?.let(LocalDate::parse)}.getOrNull() ?: LocalDate.now()
+        DatePickerDialog(context,{_,year,month,day->change(LocalDate.of(year,month+1,day).toString())},initial.year,initial.monthValue-1,initial.dayOfMonth).show()
+    }
+    Box(Modifier.fillMaxWidth().padding(vertical=4.dp)) {
+        OutlinedTextField(value=if(value.isNullOrBlank())"" else prettyDate(value),onValueChange={},enabled=false,label={Text(hint)},trailingIcon={Icon(Icons.Rounded.DateRange,"Select date",tint=Accent)},colors=OutlinedTextFieldDefaults.colors(disabledTextColor=Ink,disabledLabelColor=Soft,disabledBorderColor=Color(0x44FFFFFF),disabledTrailingIconColor=Accent),modifier=Modifier.fillMaxWidth())
+        Box(Modifier.matchParentSize().clip(RoundedCornerShape(4.dp)).clickable(onClick=openPicker))
+    }
+}
+private fun validDate(value:String):Boolean=runCatching{LocalDate.parse(value)}.isSuccess
+private fun validOptionalDate(value:String?):Boolean=value.isNullOrBlank()||validDate(value)
 private fun encodePhoto(context: android.content.Context, uri: Uri): String? = runCatching {
     val source = context.contentResolver.openInputStream(uri) ?: return null
     val bitmap = source.use { BitmapFactory.decodeStream(it) } ?: return null
