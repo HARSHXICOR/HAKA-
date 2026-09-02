@@ -1,11 +1,13 @@
 package com.haka.app.feature.home
 
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -42,6 +44,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -53,8 +56,16 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.haka.app.core.model.CachedHakaState
 import com.haka.app.core.model.SyncStatus
+import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import java.text.NumberFormat
+import kotlin.math.PI
+import kotlin.math.abs
 import kotlin.math.roundToInt
+import kotlin.math.sin
 
 private val HomeBackgroundTop = Color(0xFF120C13)
 private val HomeBackgroundBottom = Color(0xFF26101D)
@@ -267,6 +278,19 @@ private fun ThinkingOfYouAction(enabled: Boolean, sending: Boolean, message: Str
 
 @Composable
 private fun HeartProgress(fraction: Float, percentage: Int, modifier: Modifier, onTap: () -> Unit) {
+    val gravityTilt = rememberGravityTilt()
+    val liquidTilt by animateFloatAsState(
+        targetValue = gravityTilt,
+        animationSpec = spring(dampingRatio = .48f, stiffness = 42f),
+        label = "liquid gravity",
+    )
+    val liquidMotion = rememberInfiniteTransition(label = "liquid motion")
+    val wavePhase by liquidMotion.animateFloat(
+        initialValue = 0f,
+        targetValue = (PI * 2).toFloat(),
+        animationSpec = infiniteRepeatable(tween(1_650, easing = LinearEasing), RepeatMode.Restart),
+        label = "liquid surface",
+    )
     Box(modifier.clickable(onClick = onTap), contentAlignment = Alignment.Center) {
         Canvas(Modifier.fillMaxSize()) {
             val heart = heartPath(size.width, size.height)
@@ -274,16 +298,32 @@ private fun HeartProgress(fraction: Float, percentage: Int, modifier: Modifier, 
             clipPath(heart) {
                 val waterY = size.height * (1f - fraction)
                 drawRect(Brush.verticalGradient(listOf(Color(0xFF3E1728), Color(0xFF160D18))), topLeft = Offset(0f, 0f), size = Size(size.width, waterY.coerceAtLeast(0f)))
-                val wave = Path().apply {
-                    moveTo(0f, waterY)
-                    cubicTo(size.width * .18f, waterY - 23f, size.width * .31f, waterY + 23f, size.width * .5f, waterY)
-                    cubicTo(size.width * .69f, waterY - 23f, size.width * .82f, waterY + 23f, size.width, waterY - 2f)
+                val slope = liquidTilt * .58f
+                val waveAmplitude = 5.dp.toPx() + abs(liquidTilt) * 8.dp.toPx()
+                fun surfaceY(x: Float): Float {
+                    val gravityLine = waterY + slope * (x - size.width * .5f)
+                    val ripple = sin((x / size.width * PI * 2.3 + wavePhase).toFloat()) * waveAmplitude
+                    return gravityLine + ripple
+                }
+                val surface = Path().apply {
+                    moveTo(0f, surfaceY(0f))
+                    for (step in 1..40) {
+                        val x = size.width * step / 40f
+                        lineTo(x, surfaceY(x))
+                    }
+                }
+                val liquid = Path().apply {
+                    addPath(surface)
                     lineTo(size.width, size.height)
                     lineTo(0f, size.height)
                     close()
                 }
-                drawPath(wave, brush = Brush.verticalGradient(listOf(Color(0xFFFF6688), Color(0xFFB71D4A))))
-                listOf(Triple(.23f, .62f, 5f), Triple(.31f, .67f, 3f), Triple(.65f, .61f, 3f), Triple(.73f, .7f, 5f), Triple(.43f, .75f, 2.5f)).forEach { (x, y, radius) -> drawCircle(Color.White.copy(alpha = .22f), radius, Offset(size.width * x, size.height * y)) }
+                drawPath(liquid, brush = Brush.verticalGradient(listOf(Color(0xFFFF7897), Color(0xFFE83E6E), Color(0xFF9F173F))))
+                drawPath(surface, color = Color.White.copy(alpha = .32f), style = Stroke(width = 1.5.dp.toPx(), cap = StrokeCap.Round))
+                listOf(Triple(.23f, .67f, 5f), Triple(.31f, .72f, 3f), Triple(.65f, .66f, 3f), Triple(.73f, .75f, 5f), Triple(.43f, .8f, 2.5f)).forEach { (x, y, radius) ->
+                    val bubble = Offset(size.width * x + liquidTilt * size.width * .035f, size.height * y + sin(wavePhase + x * 8f) * 3.dp.toPx())
+                    if (bubble.y > surfaceY(bubble.x)) drawCircle(Color.White.copy(alpha = .2f), radius.dp.toPx(), bubble)
+                }
             }
             drawPath(heart, brush = Brush.linearGradient(listOf(Color(0xFFFFD4DE), Color(0xFF93435D), Color(0xFFFFA4BA))), style = Stroke(width = 3.dp.toPx(), join = StrokeJoin.Round))
             val shine = Path().apply {
@@ -300,6 +340,29 @@ private fun HeartProgress(fraction: Float, percentage: Int, modifier: Modifier, 
             Text("of our heart", color = Color.White, style = MaterialTheme.typography.titleLarge)
         }
     }
+}
+
+@Composable
+private fun rememberGravityTilt(): Float {
+    val context = LocalContext.current
+    var tilt by remember { mutableFloatStateOf(0f) }
+    DisposableEffect(context) {
+        val manager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        val sensor = manager.getDefaultSensor(Sensor.TYPE_GRAVITY)
+            ?: manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        val listener = object : SensorEventListener {
+            private var filtered = 0f
+            override fun onSensorChanged(event: SensorEvent) {
+                val normalized = (-event.values[0] / SensorManager.GRAVITY_EARTH).coerceIn(-.82f, .82f)
+                filtered += (normalized - filtered) * .16f
+                tilt = filtered
+            }
+            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit
+        }
+        sensor?.let { manager.registerListener(listener, it, SensorManager.SENSOR_DELAY_GAME) }
+        onDispose { manager.unregisterListener(listener) }
+    }
+    return tilt
 }
 
 private fun heartPath(width: Float, height: Float) = Path().apply {
