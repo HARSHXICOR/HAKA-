@@ -1,10 +1,7 @@
 package com.haka.app.feature.navigation
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.BarChart
 import androidx.compose.material.icons.rounded.Favorite
@@ -15,8 +12,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -76,10 +71,7 @@ private fun HakaBottomBar(selected: Int, onSelected: (Int) -> Unit) {
             .fillMaxWidth()
             .navigationBarsPadding()
             .padding(horizontal = 24.dp, vertical = 8.dp)
-            .height(88.dp)
-            .clip(RoundedCornerShape(26.dp))
-            .background(Brush.verticalGradient(listOf(Color(0x66321A35), Color(0x70301737))))
-            .border(1.dp, Color(0x665F345F), RoundedCornerShape(26.dp)),
+            .height(88.dp),
     ) {
         Row(Modifier.fillMaxSize().padding(horizontal = 7.dp), verticalAlignment = Alignment.CenterVertically) {
             items.forEachIndexed { index, item ->
@@ -88,8 +80,6 @@ private fun HakaBottomBar(selected: Int, onSelected: (Int) -> Unit) {
                     Modifier
                         .weight(1f)
                         .fillMaxHeight()
-                        .clip(RoundedCornerShape(22.dp))
-                        .background(if (active) Color(0x514D1E43) else Color.Transparent)
                         .clickable { onSelected(index) },
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
