@@ -1,356 +1,541 @@
-# Haka ❤️
+<div align="center">
+  <img src="app/src/main/res/drawable-nodpi/ic_haka_logo.png" alt="Haka logo" width="180" />
 
-Haka is a private Android app for two people who want to stay emotionally connected throughout the day.
+  # Haka
 
-Each couple shares one living heart. Either partner can tap it, both devices see the authoritative state in real time, and the heart gradually loses energy unless the couple keeps participating together.
+  **A private shared-heart experience for two people, built natively for Android and iOS.**
 
-The app is designed around a simple promise:
+  [![Backend CI](https://github.com/HARSHXICOR/HAKA-/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/HARSHXICOR/HAKA-/actions/workflows/backend-ci.yml)
+  ![Android](https://img.shields.io/badge/Android-API%2026%2B-3DDC84?logo=android&logoColor=white)
+  ![iOS](https://img.shields.io/badge/iOS-16%2B-000000?logo=apple&logoColor=white)
+  ![Kotlin](https://img.shields.io/badge/Kotlin-Jetpack%20Compose-7F52FF?logo=kotlin&logoColor=white)
+  ![Swift](https://img.shields.io/badge/Swift-SwiftUI-F05138?logo=swift&logoColor=white)
+  ![Supabase](https://img.shields.io/badge/Backend-Supabase-3FCF8E?logo=supabase&logoColor=white)
+
+  [Features](#features) · [Architecture](#architecture) · [Setup](#local-development) · [Testing](#testing) · [Security](#security-and-privacy)
+</div>
+
+---
+
+## Overview
+
+Haka gives a couple one shared, living heart. Either partner can tap it, both clients receive the authoritative shared state, and the heart gradually loses energy unless they keep participating together.
+
+The product is intentionally private and focused:
 
 > Open Haka, see your shared heart, send a little love, and know your partner can feel it.
 
-## Highlights
+Haka is not a public social network or a general-purpose chat app. Each authenticated user belongs to one active couple, and each couple contains exactly two members.
 
-- Shared heart with server-authoritative state
-- Real-time partner taps and heart updates
-- Linear heart decay: 1% every 30 seconds in the current MVP build
-- Tap feedback with haptics, pulses, floating hearts, and full-heart celebration
-- Couple creation and one-time invite-code pairing
-- Google sign-in support for account recovery across devices
-- Thinking of You actions from Home and Love
-- Private Love Notes with push notifications
-- Daily Mood sharing between partners
-- Automatic Android notification-channel setup and foreground notification support
-- Home-screen widget built with Jetpack Glance
-- Offline tap queue with retry when connectivity returns
-- Responsive Jetpack Compose UI for narrow Android devices
-- Supabase Auth, PostgreSQL, Edge Functions, RLS, Realtime, and FCM delivery
+## Release status
 
-## Product model
+| Item | Current value |
+| --- | --- |
+| Product version | **2.2.0** |
+| Build number | **8** |
+| Android minimum | Android 8.0 / API 26 |
+| iOS minimum | iOS 16 |
+| Backend | Supabase PostgreSQL, Auth, Edge Functions, Realtime, and Storage |
+| Android notifications | Firebase Cloud Messaging |
+| iOS notifications | Simulator payload testing; production APNs integration requires Apple credentials |
 
-Haka is intentionally small and private. A user belongs to one active couple in the MVP, and a couple has exactly two members.
+The Android app and native iOS simulator app share the same Supabase project and backend state machine.
 
-The backend owns all values that affect trust and shared state:
+## Features
 
-- heart score and decay
-- tap totals and attribution
-- daily completion
-- current and longest streak
-- couple membership
-- invite-code validity
-- idempotency and rate limiting
-- Love Notes and Daily Mood data
+### Shared heart
 
-The Android client renders state and sends commands. It never decides the authoritative score, timestamps, streak, membership, or partner identity.
+- One authoritative heart per couple
+- Live partner tap updates
+- Linear time-based decay
+- Idempotent tap commands and retry-safe processing
+- Per-user and combined daily tap totals
+- Current and longest streak tracking
+- Haptic tap feedback, floating-heart particles, liquid fill, and full-heart celebration
+- Android and iOS home-screen widgets
 
-## Current navigation
+### Emotional connection
 
-```text
-Heart       Shared heart, tapping, Thinking of You, partner activity
-Insights    Combined statistics and daily history
-Love        Thinking of You, Love Notes, and Daily Mood
-Settings    Account recovery, notifications, privacy, and sign out
-```
+- **Thinking of You** partner nudge
+- Private Love Notes
+- Daily Mood sharing
+- Partner activity notifications
+- Private, couple-only visibility
+
+### Our Story
+
+- Shared memories with captions, dates, and photo albums
+- Standalone bucket-list items
+- Named shared bucket lists
+- Completion tracking
+- Important relationship dates
+- Anniversary, birthday, and custom-date reminders
+- Full create, edit, and delete flows
+
+### Insights
+
+- Today’s combined progress
+- Per-partner contribution breakdown
+- Current and longest streaks
+- Seven-day activity chart
+- Private daily summaries
+- Dynamic history sourced from the backend
+
+### Identity and recovery
+
+- Anonymous Supabase Auth for low-friction onboarding
+- Google identity linking for account recovery
+- One-time, expiring invite codes
+- Persistent couple membership across reinstall or device migration after linking
+
+## Platform parity
+
+| Capability | Android | iOS |
+| --- | :---: | :---: |
+| Anonymous and Google authentication | ✅ | ✅ |
+| Create or join a couple | ✅ | ✅ |
+| Shared heart and authoritative taps | ✅ | ✅ |
+| Automatic in-app decay display | ✅ | ✅ |
+| Thinking of You | ✅ | ✅ |
+| Love Notes and Daily Mood | ✅ | ✅ |
+| Insights and daily history | ✅ | ✅ |
+| Memories, bucket lists, and dates | ✅ | ✅ |
+| Home-screen widget | ✅ | ✅ |
+| Narrow-screen responsive layout | ✅ | ✅ |
+| Offline tap queue | ✅ | — |
+| Production partner push delivery | ✅ | Requires APNs credentials |
+| Simulator notification presentation | N/A | ✅ |
+
+Android receives backend state through Supabase Realtime and repository refreshes. The current iOS client refreshes authoritative state every two seconds while open and renders decay locally from the server timestamp.
+
+## Heart rules
+
+The heart uses integer score units to keep all calculations deterministic:
+
+~~~text
+Maximum score: 10,000 points
+Accepted tap:  +25 points
+Decay:         -100 points per completed 30-second interval
+Range:         0...10,000
+~~~
+
+This is linear decay:
+
+- 1 tap = +0.25%
+- 4 taps = +1%
+- 1 completed 30-second interval = -1%
+- Tapping does not reset the decay boundary
+
+The backend applies accumulated decay lazily using server time before accepting a command. Clients can animate the effective score between network updates, but they never become authoritative.
+
+## Navigation
+
+~~~text
+Heart       Shared heart, tapping, connection state, and Thinking of You
+Insights    Today’s progress, contribution split, streaks, charts, and history
+Love        Love Notes, Daily Mood, and Thinking of You
+Us          Memories, bucket lists, and important relationship dates
+Settings    Identity recovery, notifications, privacy, and sign out
+~~~
 
 ## Architecture
 
-```text
-Android app
-  ├── Jetpack Compose UI
-  ├── ViewModels and StateFlow
-  ├── Repository/data layer
-  ├── Room cache and offline tap queue
-  ├── Firebase Cloud Messaging service
-  └── Jetpack Glance widget
-          │
-          ├── Supabase Auth
-          ├── Authenticated Edge Functions
-          ├── PostgreSQL RPC state machine
-          ├── Row-Level Security
-          ├── Supabase Realtime
-          └── FCM HTTP v1 notification delivery
-```
+~~~mermaid
+flowchart LR
+    subgraph Clients
+        A[Android: Compose, Room, Glance]
+        I[iOS: SwiftUI, WidgetKit]
+    end
+
+    A --> AUTH[Supabase Auth]
+    I --> AUTH
+    A --> EDGE[Authenticated Edge Functions]
+    I --> EDGE
+    EDGE --> RPC[Security-definer PostgreSQL RPCs]
+    RPC --> DB[(PostgreSQL)]
+    RPC --> STORAGE[(Private Storage)]
+    DB --> RT[Realtime changes]
+    RT --> A
+    EDGE --> FCM[FCM HTTP v1]
+    FCM --> A
+~~~
+
+### Trust boundary
+
+The clients render state and submit commands. The backend owns every value that affects trust:
+
+- Couple membership and partner identity
+- Heart score, timestamps, and decay
+- Tap attribution and totals
+- Daily completion and streaks
+- Invite validity and consumption
+- Idempotency and rate limiting
+- Love Notes, moods, memories, dates, and reminders
+- Notification eligibility and throttling
 
 ### Android stack
 
 - Kotlin
 - Jetpack Compose and Material 3
-- Hilt dependency injection
-- Coroutines and `StateFlow`
-- Room for local state and queued taps
-- WorkManager for retry work
-- Jetpack Glance for the widget
-- Firebase Cloud Messaging for partner notifications
-- Supabase Kotlin SDK for Auth, Functions, PostgREST, and Realtime
+- Hilt
+- Coroutines and StateFlow
+- Room
+- WorkManager
+- Jetpack Glance
+- Firebase Cloud Messaging
+- Supabase Kotlin SDK
+
+### iOS stack
+
+- Swift 5.10
+- SwiftUI
+- Swift Charts
+- WidgetKit
+- PhotosUI
+- AuthenticationServices
+- Keychain-backed Supabase session storage
+- Native URLSession Supabase Auth and Edge Function client
+- XcodeGen project definition
 
 ### Backend stack
 
 - Supabase PostgreSQL
-- Supabase Auth with anonymous onboarding and Google identity linking
-- Supabase Edge Functions with JWT verification
+- Supabase Auth
+- Supabase Edge Functions
 - PostgreSQL security-definer RPC functions
-- Row-Level Security on public tables
-- Private schema for idempotency, notification, Love Note, and Mood data
-- FCM HTTP v1 using a server-only Firebase Admin credential
+- Row-Level Security
+- Supabase Realtime
+- Private Supabase Storage
+- FCM HTTP v1 for Android push delivery
 
-## Repository layout
+## Repository structure
 
-```text
+~~~text
 .
-├── app/
+├── app/                         # Native Android application
 │   └── src/main/java/com/haka/app/
-│       ├── core/                 # Theme, models, networking, notifications
-│       ├── data/                 # Repository, Room, settings
-│       ├── feature/auth/         # Sign-in screen
-│       ├── feature/home/         # Shared heart and tap interactions
-│       ├── feature/insights/     # Stats and history
-│       ├── feature/love/         # Love Notes and Daily Mood
-│       ├── feature/pairing/      # Couple creation and invite redemption
-│       ├── feature/settings/     # Account, notifications, privacy
-│       ├── widget/               # Glance widget
-│       └── work/                 # Offline tap retry
+│       ├── core/                # Models, theme, networking, notifications
+│       ├── data/                # Repository, Room, and settings
+│       ├── feature/             # Auth, Heart, Insights, Love, Us, Settings
+│       ├── widget/              # Jetpack Glance widget
+│       └── work/                # Offline tap retry
+├── ios/                         # Native iOS application
+│   ├── Haka/
+│   │   ├── App/                 # App lifecycle, root state, navigation
+│   │   ├── Core/                # API, models, auth session, design system
+│   │   ├── Features/            # Auth, Heart, Insights, Love, Us, Settings
+│   │   └── Resources/           # Assets, entitlements, Info.plist
+│   ├── HakaWidget/              # WidgetKit shared-heart widget
+│   ├── PushPayloads/            # Simulator notification fixtures
+│   ├── Tests/                   # iOS unit tests
+│   └── project.yml              # XcodeGen source of truth
 ├── supabase/
-│   ├── functions/                # Authenticated Edge Functions
-│   ├── migrations/               # PostgreSQL schema, RPCs, RLS, Realtime
-│   └── tests/                    # Database tests
-├── functions/                    # Firebase backend fallback and emulator suite
-├── scripts/                      # Smoke tests and project utilities
-├── .github/workflows/            # CI configuration
-├── Android_App_Plan.md           # Product and Android plan
-├── BACKEND_README.md             # Firebase backend reference
-├── Firebase_Implementation_Spec.md
-└── SUPABASE_BACKEND_README.md    # Supabase deployment reference
-```
-
-## Requirements
-
-- Android Studio with Android SDK 35
-- JDK 17 for the Android build
-- Node.js 22 for backend tooling
-- Supabase CLI
-- A Supabase project
-- A Firebase project with an Android app registered as `com.haka.app`
-- A Firebase service-account credential with FCM send permission for push notifications
-
-The app supports Android 8.0/API 26 and newer. Android 12/API 31 is supported.
-
-## Local Android setup
-
-1. Clone the repository.
-2. Add the local Supabase values to `local.properties`:
-
-```properties
-SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
-SUPABASE_ANON_KEY=YOUR_PUBLISHABLE_OR_ANON_KEY
-```
-
-Use only a publishable/anon key in the Android app. Never use a Supabase service-role key in Android.
-
-3. Download the Firebase Android client configuration from Firebase Console and place it at:
-
-```text
-app/google-services.json
-```
-
-This file is intentionally ignored by Git because it belongs to a specific Firebase project/environment.
-
-4. Build the debug APK:
-
-```bash
-JAVA_HOME=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home \
-  ./gradlew :app:assembleDebug --no-daemon
-```
-
-The APK is written to:
-
-```text
-app/build/outputs/apk/debug/app-debug.apk
-```
-
-## Supabase setup and deployment
-
-Install the project tools and link the intended Supabase project:
-
-```bash
-npm install
-./node_modules/.bin/supabase login
-./node_modules/.bin/supabase link --project-ref YOUR_PROJECT_REF
-```
-
-Apply the schema and deploy the Edge Functions:
-
-```bash
-./node_modules/.bin/supabase db push --linked --include-all
-
-./node_modules/.bin/supabase functions deploy \
-  create-couple redeem-invite get-bootstrap tap-heart register-device \
-  thinking-of-you send-love-note get-love-notes set-mood get-mood \
-  --project-ref YOUR_PROJECT_REF --use-api
-```
-
-The deployed functions require a valid Supabase Auth access token. JWT verification is enabled in `supabase/config.toml`.
-
-### Configure FCM push delivery
-
-Store the Firebase Admin service-account JSON as a Supabase secret. Do not commit the JSON or put it in Android resources:
-
-```bash
-./node_modules/.bin/supabase secrets set \
-  FIREBASE_SERVICE_ACCOUNT_JSON='YOUR_SERVICE_ACCOUNT_JSON' \
-  --project-ref YOUR_PROJECT_REF
-```
-
-The secret is used only by server-side Edge Functions. The Android app receives the Firebase client configuration, not the Admin credential.
-
-Push events currently include:
-
-```text
-partner_tap
-thinking_of_you
-love_note
-```
-
-When the app is foregrounded, `HakaMessagingService` creates a local notification. When it is backgrounded, FCM displays the notification through the configured Android channel.
+│   ├── functions/               # Authenticated Edge Functions
+│   ├── migrations/              # Schema, RPC, RLS, Realtime, features
+│   └── tests/                   # Database tests
+├── functions/                   # Original Firebase backend reference
+├── scripts/                     # Backend smoke tests and utilities
+└── .github/workflows/           # Continuous integration
+~~~
 
 ## Backend functions
 
-| Function | Purpose |
+| Function | Responsibility |
 | --- | --- |
-| `create-couple` | Creates a couple, initializes the heart, and issues an invite code |
-| `redeem-invite` | Validates and consumes a one-time invite |
-| `get-bootstrap` | Returns the authenticated user, couple, heart, daily state, streak, and history |
-| `tap-heart` | Applies decay, accepts an idempotent tap, updates totals, and optionally notifies the partner |
-| `register-device` | Stores an authenticated device FCM token and notification preference |
-| `thinking-of-you` | Records a rate-limited private nudge and sends a push notification |
-| `send-love-note` | Stores a private 160-character note and sends a push notification |
-| `get-love-notes` | Returns the couple's latest private notes |
-| `set-mood` | Stores the authenticated user's mood for the couple's local day |
-| `get-mood` | Returns both partners' mood values for the current couple day |
+| create-couple | Creates a couple, initializes state, and issues an invite |
+| redeem-invite | Validates and consumes a one-time invite |
+| get-bootstrap | Returns identity, couple, heart, day, streak, and history |
+| tap-heart | Applies decay, processes an idempotent tap, and updates totals |
+| register-device | Stores Android FCM tokens and notification preferences |
+| thinking-of-you | Records a rate-limited nudge and notifies the partner |
+| send-love-note | Stores a private note and triggers partner notification |
+| get-love-notes | Returns the couple’s recent private notes |
+| set-mood | Stores the authenticated user’s current daily mood |
+| get-mood | Returns both partners’ current daily moods |
+| relationship-story | Manages memories, albums, bucket lists, and important dates |
 
-## Data and security
+## Local development
 
-The PostgreSQL state machine validates membership and uses server time. Sensitive feature tables are in the `private` schema and are accessed through service-role-only RPC functions invoked by authenticated Edge Functions.
+### Prerequisites
 
-Important protections include:
+- Git
+- JDK 17
+- Android Studio with Android SDK 35
+- Xcode 16 or newer
+- XcodeGen
+- Node.js 22
+- Supabase CLI
+- A Supabase project
+- A Firebase Android app for production Android notifications
 
-- RLS enabled on public data tables
-- No direct client writes to authoritative heart, couple, streak, or daily state
-- Membership checks inside database functions
-- One-time, expiring invite codes
-- UUID validation for command IDs
-- Idempotent tap processing
-- Rate limits for taps, Thinking of You, and Love Notes
-- No service-role key in the APK
-- No Firebase service-account JSON in source control
-- Android notification preference stored per authenticated device
-- FCM delivery failures do not roll back an accepted heart or note event
+### Clone
 
-## Heart rules
+~~~bash
+git clone git@github.com:HARSHXICOR/HAKA-.git
+cd HAKA-
+npm install
+~~~
 
-The heart uses integer score units from `0` to `10,000`.
+### Android configuration
 
-```text
-Maximum score: 10,000
-Accepted tap:  +25 points
-Decay:         -100 points every completed 30 seconds
-```
+Create or update the ignored <code>local.properties</code>:
 
-That is a linear decay of 1 percentage point per 30 seconds. A tap adds
-0.25 percentage points and does not reset the decay boundary. All arithmetic
-is integer-based and the score is clamped to `0..10,000`.
+~~~properties
+sdk.dir=/absolute/path/to/Android/sdk
+SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+SUPABASE_ANON_KEY=YOUR_PUBLISHABLE_OR_ANON_KEY
+~~~
 
-Decay is calculated lazily from the last authoritative update. The client may visually materialize decay between network updates, but the backend remains the source of truth when a command is accepted.
+Use only a Supabase publishable/anon key in a client application. Never use a service-role key.
+
+For Android push delivery, download Firebase’s <code>google-services.json</code> and place it at:
+
+~~~text
+app/google-services.json
+~~~
+
+Build the debug APK:
+
+~~~bash
+JAVA_HOME=/path/to/jdk-17 ./gradlew :app:assembleDebug --no-daemon
+~~~
+
+The APK is produced at:
+
+~~~text
+app/build/outputs/apk/debug/app-debug.apk
+~~~
+
+### iOS simulator configuration
+
+Install XcodeGen:
+
+~~~bash
+brew install xcodegen
+~~~
+
+Create the ignored local configuration:
+
+~~~bash
+cp ios/Config/Secrets.xcconfig.example ios/Config/Secrets.xcconfig
+~~~
+
+Add the same public Supabase client values used by Android:
+
+~~~xcconfig
+SUPABASE_URL = https:/$()/YOUR_PROJECT_REF.supabase.co
+SUPABASE_ANON_KEY = YOUR_PUBLISHABLE_OR_ANON_KEY
+~~~
+
+The <code>$()</code> segment is intentional: it prevents <code>//</code> from being interpreted as an xcconfig comment.
+
+Generate and open the project:
+
+~~~bash
+cd ios
+xcodegen generate
+open HakaIOS.xcodeproj
+~~~
+
+Select the **Haka** scheme and an iPhone Simulator, then run the app.
+
+Google OAuth requires this redirect URL in the Supabase Auth allow list:
+
+~~~text
+haka://auth/callback
+~~~
+
+An Apple Developer membership is not required for simulator builds, Supabase authentication, pairing, taps, the five app tabs, WidgetKit development, or simulated notification presentation.
+
+### Supabase deployment
+
+Authenticate and link the target project:
+
+~~~bash
+npx supabase login
+npx supabase link --project-ref YOUR_PROJECT_REF
+~~~
+
+Apply every migration:
+
+~~~bash
+npx supabase db push --linked --include-all
+~~~
+
+Deploy the Edge Functions:
+
+~~~bash
+npx supabase functions deploy \\
+  create-couple redeem-invite get-bootstrap tap-heart register-device \\
+  thinking-of-you send-love-note get-love-notes set-mood get-mood \\
+  relationship-story \\
+  --project-ref YOUR_PROJECT_REF --use-api
+~~~
+
+For Android FCM delivery, store the Firebase Admin service-account JSON as a server-side Supabase secret:
+
+~~~bash
+npx supabase secrets set \\
+  FIREBASE_SERVICE_ACCOUNT_JSON='YOUR_SERVICE_ACCOUNT_JSON' \\
+  --project-ref YOUR_PROJECT_REF
+~~~
+
+Never commit this credential or ship it in either mobile app.
+
+## Notifications
+
+### Android
+
+Supabase Edge Functions send FCM HTTP v1 messages for:
+
+~~~text
+partner_tap
+thinking_of_you
+love_note
+relationship_date
+~~~
+
+The Android client registers its FCM token through <code>register-device</code> and supports foreground and background notification presentation.
+
+### iOS simulator
+
+The iOS simulator can verify notification UI without an Apple Developer membership:
+
+~~~bash
+xcrun simctl push booted com.haka.app.ios ios/PushPayloads/thinking-of-you.apns
+xcrun simctl push booted com.haka.app.ios ios/PushPayloads/love-note.apns
+~~~
+
+Real partner-to-iPhone delivery requires:
+
+1. Apple Developer Program membership
+2. An App ID with Push Notifications
+3. An APNs authentication key
+4. A Firebase iOS app and APNs key upload
+5. Firebase Messaging token registration in the iOS client
+
+Supabase remains the application backend, but Apple still requires remote iOS notifications to travel through APNs.
 
 ## Testing
 
-### Android build
+### Android
 
-```bash
+~~~bash
 ./gradlew :app:assembleDebug --no-daemon
-```
+~~~
 
-### Supabase database tests
+### iOS build
 
-With Docker available:
+~~~bash
+cd ios
+xcodegen generate
+xcodebuild \\
+  -project HakaIOS.xcodeproj \\
+  -scheme Haka \\
+  -configuration Debug \\
+  -destination 'generic/platform=iOS Simulator' \\
+  CODE_SIGNING_ALLOWED=NO \\
+  build
+~~~
 
-```bash
+### iOS unit tests
+
+~~~bash
+xcodebuild \\
+  -project ios/HakaIOS.xcodeproj \\
+  -scheme Haka \\
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \\
+  CODE_SIGNING_ALLOWED=NO \\
+  test
+~~~
+
+### Local Supabase database
+
+Docker must be running:
+
+~~~bash
 npm run supabase:start
 npm run supabase:reset
 npm run test:supabase
 npm run supabase:lint
-```
+~~~
 
-### Live smoke test
+### Production smoke test
 
-Use temporary environment variables only. Never commit them:
+Use temporary environment variables and a dedicated test couple:
 
-```bash
-SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co \
-SUPABASE_ANON_KEY=YOUR_ANON_KEY \
-SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY \
+~~~bash
+SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co \\
+SUPABASE_ANON_KEY=YOUR_ANON_KEY \\
+SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY \\
 npm run smoke:supabase
-```
+~~~
 
-The smoke test should cover:
+The smoke suite covers authentication, pairing, authorization, idempotent taps, decay, daily completion, streaks, Love Notes, Daily Mood, and cleanup.
 
-- anonymous user creation
-- couple creation and invite redemption
-- authorized and unauthorized access
-- accepted tap and duplicate tap idempotency
-- exact decay behavior
-- daily completion and streak updates
-- Love Note creation and retrieval
-- Daily Mood creation and partner retrieval
-- cleanup of generated test data
+### Manual two-client acceptance test
 
-### Manual two-device test
+1. Sign in on two independent app installations.
+2. Create a couple on client A.
+3. Redeem the invite on client B.
+4. Confirm client A leaves the invite screen automatically.
+5. Tap either heart and confirm both clients update.
+6. Wait 30 seconds and confirm both clients show the 1% decay.
+7. Send Thinking of You and a Love Note.
+8. Share a mood, memory, bucket item, and important date.
+9. Restart both clients and confirm the same couple and state return.
+10. Link Google and verify identity recovery before changing devices.
 
-1. Install the same debug build on two phones.
-2. Sign in on both phones.
-3. Create a couple on phone A and redeem the invite on phone B.
-4. Open the app once on both phones to register FCM tokens.
-5. Tap the heart on either phone and confirm both hearts update.
-6. Send **Thinking of You** and confirm the partner notification panel entry.
-7. Send a Love Note and confirm the partner notification and Love tab entry.
-8. Select a Daily Mood and confirm the partner sees it in Love within the refresh interval.
-9. Force-close and reopen both apps to confirm state recovery.
+## Security and privacy
 
-## Account recovery
+Haka follows an authoritative-backend model:
 
-Anonymous Auth keeps first launch frictionless, but anonymous identity alone is not enough for a device change. Users should link Google before relying on Haka across phones.
+- RLS is enabled on public data tables
+- Clients cannot directly write authoritative heart, couple, streak, or daily state
+- Membership is checked inside backend RPC functions
+- Invite codes are one-time and expire
+- Tap IDs make retries idempotent
+- Server time controls decay and daily rollover
+- Sensitive feature data lives behind authenticated Edge Functions
+- Relationship photos use private storage and expiring signed URLs
+- Rate limits protect taps, nudges, and notes
+- Service-role and Firebase Admin credentials remain server-only
+- Local client configuration files are ignored by Git
+- Notification failures never roll back an accepted relationship event
 
-```text
-Anonymous identity
-        ↓
-Link Google
-        ↓
-Same Supabase user identity
-        ↓
-Existing couple, heart, notes, moods, and streak
-```
-
-Invite codes are for pairing only. They are not account-recovery credentials.
+Invite codes are pairing credentials, not account-recovery credentials. Device recovery must use a linked Google identity.
 
 ## Release checklist
 
-- Confirm the correct Supabase project and Firebase project are selected.
-- Confirm Android `google-services.json` matches `com.haka.app`.
-- Confirm service-account JSON is stored only as a Supabase secret.
-- Test Google recovery on a second device.
-- Test notifications with the partner app foregrounded, backgrounded, and force-closed.
-- Test Poco X3 / Android 12 and other narrow-screen devices.
-- Review Supabase Edge Function logs and FCM failures.
-- Build a signed release AAB, not the debug APK.
-- Verify the version code and version name before publishing.
-- Configure crash reporting, budget alerts, and data deletion procedures.
+- Confirm version name and build number on both platforms
+- Confirm the intended Supabase project is selected
+- Apply all database migrations
+- Deploy every required Edge Function
+- Verify RLS, storage policies, and function JWT enforcement
+- Confirm Android <code>google-services.json</code> matches <code>com.haka.app</code>
+- Confirm Firebase Admin JSON exists only as a Supabase secret
+- Test pairing, duplicate taps, exact decay, reconnect, and account recovery
+- Test notifications in foreground, background, and terminated states
+- Test narrow Android devices and multiple iPhone simulator sizes
+- Review function logs, notification failures, and budget alerts
+- Produce signed release artifacts only from a clean commit
 
-## Version
+## Contributing
 
-Current Android release line: **2.0.0**
+Keep changes aligned with Haka’s private, couple-first scope. New client behavior must preserve backend authority, avoid exposing relationship content to third parties, and include proportional tests.
 
-## Privacy direction
+Use focused commits with conventional prefixes such as:
 
-Haka is intended to keep relationship data private to the couple. Avoid adding public profiles, advertising identifiers, third-party analytics with message content, or permanent per-tap history without revisiting the privacy model and security rules.
+~~~text
+feat(android):
+feat(ios):
+feat(backend):
+fix:
+test:
+docs:
+chore:
+~~~
 
 ## License
 
-No open-source license has been selected yet. Until a license is added, all rights are reserved by the project owner.
+No open-source license has been granted. Unless a license is added, all rights are reserved by the repository owner.
