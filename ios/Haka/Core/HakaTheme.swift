@@ -3,6 +3,7 @@ import SwiftUI
 enum HakaPalette {
     static let background = Color(red: 0.07, green: 0.04, blue: 0.08)
     static let backgroundBottom = Color(red: 0.15, green: 0.06, blue: 0.11)
+    static let deepRose = Color(red: 0.82, green: 0.09, blue: 0.27)
     static let rose = Color(red: 1.00, green: 0.36, blue: 0.52)
     static let softRose = Color(red: 1.00, green: 0.61, blue: 0.71)
     static let purple = Color(red: 0.76, green: 0.36, blue: 1.00)

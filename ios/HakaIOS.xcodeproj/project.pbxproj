@@ -22,8 +22,10 @@
 		8764B01E8DF8F759B63761CE /* HakaConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC69D67CE87369E25CED02B1 /* HakaConfiguration.swift */; };
 		887DA248D2C4090396228641 /* LoveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A3207D8F501924ADA6CA22A /* LoveView.swift */; };
 		8BDE1DD07CDCD2F97A73CCEB /* HakaTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB722B2F2FE0467857E9F91E /* HakaTheme.swift */; };
+		94E9FE6B575CBE86AB9D168F /* HeartEffects.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7E515CD8B4E86A49D8D3D31 /* HeartEffects.swift */; };
 		B01C28208372DDA9527671D7 /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA31CD10579B3392499715B6 /* AuthView.swift */; };
 		C6A2D6A56708892EC49DAFE8 /* HakaWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 108B72B956E9018731ADAB03 /* HakaWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		D129AD2BFFBD914B21B95BF6 /* HomeComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869F2FC0052098E278799726 /* HomeComponents.swift */; };
 		D2A92A6ED3BC2343C5F74BDF /* SessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE908C7D395A06F6DAB714C2 /* SessionStore.swift */; };
 		D88FADE7923E4B9D36510C35 /* HakaAppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769BFBD33598F23160154CB5 /* HakaAppModel.swift */; };
 		DFD8EC313BDC928FBE79F65C /* HakaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F68ABDFE93D120343482107 /* HakaApp.swift */; };
@@ -76,6 +78,7 @@
 		769BFBD33598F23160154CB5 /* HakaAppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HakaAppModel.swift; sourceTree = "<group>"; };
 		7D5A2CD06B2ED28A571C35A5 /* PairingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingView.swift; sourceTree = "<group>"; };
 		7F68ABDFE93D120343482107 /* HakaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HakaApp.swift; sourceTree = "<group>"; };
+		869F2FC0052098E278799726 /* HomeComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeComponents.swift; sourceTree = "<group>"; };
 		9A3207D8F501924ADA6CA22A /* LoveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoveView.swift; sourceTree = "<group>"; };
 		9C3F59240C01B73300A4AEAB /* HakaModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HakaModels.swift; sourceTree = "<group>"; };
 		A289D717239C6FA46BAF574A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -84,6 +87,7 @@
 		B7CC1ED777D46B64112F93E0 /* HakaWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HakaWidget.swift; sourceTree = "<group>"; };
 		BB722B2F2FE0467857E9F91E /* HakaTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HakaTheme.swift; sourceTree = "<group>"; };
 		CB240FB85AE07CF5FCF16731 /* HeartRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartRules.swift; sourceTree = "<group>"; };
+		D7E515CD8B4E86A49D8D3D31 /* HeartEffects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartEffects.swift; sourceTree = "<group>"; };
 		DC69D67CE87369E25CED02B1 /* HakaConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HakaConfiguration.swift; sourceTree = "<group>"; };
 		EA31CD10579B3392499715B6 /* AuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
 		F5C4AE8F970BEA1462ED01A3 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
@@ -102,6 +106,8 @@
 		22EB8FD705844F06F73FCE84 /* Home */ = {
 			isa = PBXGroup;
 			children = (
+				D7E515CD8B4E86A49D8D3D31 /* HeartEffects.swift */,
+				869F2FC0052098E278799726 /* HomeComponents.swift */,
 				AE35338003E99F54A940DDCF /* HomeView.swift */,
 			);
 			path = Home;
@@ -391,7 +397,9 @@
 				8764B01E8DF8F759B63761CE /* HakaConfiguration.swift in Sources */,
 				1FD82DAEE123647BBE056CAE /* HakaModels.swift in Sources */,
 				8BDE1DD07CDCD2F97A73CCEB /* HakaTheme.swift in Sources */,
+				94E9FE6B575CBE86AB9D168F /* HeartEffects.swift in Sources */,
 				E263EB8ADC940040C166F8D9 /* HeartRules.swift in Sources */,
+				D129AD2BFFBD914B21B95BF6 /* HomeComponents.swift in Sources */,
 				5B34CECA924C77EC255E4B68 /* HomeView.swift in Sources */,
 				66400619474CA48BDE8B9D8B /* InsightsProjection.swift in Sources */,
 				8505750BFEDB2EC164B647E6 /* InsightsView.swift in Sources */,
