@@ -17,6 +17,8 @@ build/
 app/build/
 app/google-services.json
 ios/Config/Secrets.xcconfig
+ios/**/GoogleService-Info.plist
+ios/GoogleService-Info.plist
 ios/*.xcodeproj/xcuserdata/
 ios/*.xcworkspace/xcuserdata/
 ios/DerivedData/

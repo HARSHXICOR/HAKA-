@@ -6,10 +6,10 @@
   **A private shared-heart experience for two people, built natively for Android and iOS.**
 
   [![Backend CI](https://github.com/HARSHXICOR/HAKA-/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/HARSHXICOR/HAKA-/actions/workflows/backend-ci.yml)
-  ![Android](https://img.shields.io/badge/Android-API%2026%2B-3DDC84?logo=android&logoColor=white)
   ![iOS](https://img.shields.io/badge/iOS-16%2B-000000?logo=apple&logoColor=white)
-  ![Kotlin](https://img.shields.io/badge/Kotlin-Jetpack%20Compose-7F52FF?logo=kotlin&logoColor=white)
   ![Swift](https://img.shields.io/badge/Swift-SwiftUI-F05138?logo=swift&logoColor=white)
+  ![Android](https://img.shields.io/badge/Android-API%2026%2B-3DDC84?logo=android&logoColor=white)
+  ![Kotlin](https://img.shields.io/badge/Kotlin-Jetpack%20Compose-7F52FF?logo=kotlin&logoColor=white)
   ![Supabase](https://img.shields.io/badge/Backend-Supabase-3FCF8E?logo=supabase&logoColor=white)
 
   [Features](#features) · [Architecture](#architecture) · [Setup](#local-development) · [Testing](#testing) · [Security](#security-and-privacy)
@@ -26,6 +26,23 @@ The product is intentionally private and focused:
 > Open Haka, see your shared heart, send a little love, and know your partner can feel it.
 
 Haka is not a public social network or a general-purpose chat app. Each authenticated user belongs to one active couple, and each couple contains exactly two members.
+
+## iOS showcase
+
+The iOS client is a native SwiftUI implementation—not a web wrapper or generated cross-platform shell. It shares the production Supabase contract with Android while using platform-native navigation, accessibility, charts, photos, and WidgetKit.
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/screenshots/ios/home.png" alt="Haka shared heart on iOS" width="220" /><br /><strong>Shared Heart</strong></td>
+    <td align="center"><img src="docs/screenshots/ios/insights.png" alt="Haka insights on iOS" width="220" /><br /><strong>Insights</strong></td>
+    <td align="center"><img src="docs/screenshots/ios/love.png" alt="Haka Love features on iOS" width="220" /><br /><strong>Love</strong></td>
+    <td align="center"><img src="docs/screenshots/ios/story.png" alt="Haka shared story on iOS" width="220" /><br /><strong>Us</strong></td>
+  </tr>
+</table>
+
+The shared heart is exposed as an accessible control with a descriptive value and action hint. The layout supports Dynamic Type-friendly SwiftUI text, VoiceOver labels, reduced-motion-aware system animation primitives, and compact iPhone widths.
+
+See the dedicated [iOS setup and architecture guide](ios/README.md).
 
 ## Release status
 
