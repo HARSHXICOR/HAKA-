@@ -59,17 +59,18 @@ final class HakaAppModel: ObservableObject {
     var myTaps: Int { today?.myTaps ?? 0 }
     var partnerTaps: Int { today?.partnerTaps ?? 0 }
     var totalTaps: Int { today?.totalTaps ?? 0 }
+    var heartMaximumScore: Int { heart?.maxScore ?? HeartRules.maximumScore }
 
     var effectiveScore: Int {
-        guard let heart else { return 0 }
-        let elapsed = max(0, now.timeIntervalSince1970 - heart.normalizedLastUpdated)
-        let intervals = Int(elapsed / 30)
-        return max(0, heart.score - intervals * 100)
+        heart?.effectiveScore(at: now) ?? 0
     }
 
     var heartFraction: Double {
-        guard let heart, heart.maxScore > 0 else { return 0 }
-        return min(1, max(0, Double(effectiveScore) / Double(heart.maxScore)))
+        HeartRules.fraction(score: effectiveScore, maxScore: heartMaximumScore)
+    }
+
+    var heartPercentage: Int {
+        HeartRules.percentage(score: effectiveScore, maxScore: heartMaximumScore)
     }
 
     func start() async {
@@ -164,7 +165,7 @@ final class HakaAppModel: ObservableObject {
                     streak = result.streak
                 }
                 await refresh()
-                if result.score >= 10_000 { tapCelebration += 10_000 }
+                if result.score >= heartMaximumScore { tapCelebration += HeartRules.maximumScore }
             } catch {
                 message = error.localizedDescription
             }

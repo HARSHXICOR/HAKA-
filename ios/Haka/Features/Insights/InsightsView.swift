@@ -4,6 +4,10 @@ import SwiftUI
 struct InsightsView: View {
     @EnvironmentObject private var model: HakaAppModel
 
+    private var snapshot: InsightsSnapshot {
+        InsightsProjection.snapshot(today: model.today, streak: model.streak)
+    }
+
     var body: some View {
         ZStack {
             HakaBackground(bottom: Color(red: 0.13, green: 0.06, blue: 0.11))
@@ -56,12 +60,12 @@ struct InsightsView: View {
                 VStack(alignment: .leading, spacing: 7) {
                     Text("Today").font(.headline).foregroundStyle(HakaPalette.softRose)
                     HStack(alignment: .lastTextBaseline) {
-                        Text("\(model.totalTaps) taps").font(.title.bold())
+                        Text("\(snapshot.totalTaps) taps").font(.title.bold())
                         Spacer()
-                        Text(model.today?.completed == true ? "Completed" : "In progress")
-                            .foregroundStyle(model.today?.completed == true ? HakaPalette.green : HakaPalette.softRose)
+                        Text(snapshot.status.title)
+                            .foregroundStyle(snapshot.status == .completed ? HakaPalette.green : HakaPalette.softRose)
                     }
-                    ProgressView(value: model.today?.completed == true ? 1 : min(1, Double(model.totalTaps) / 100))
+                    ProgressView(value: snapshot.status == .completed ? 1 : min(1, Double(snapshot.totalTaps) / 100))
                         .tint(HakaPalette.rose)
                 }
             }
@@ -72,36 +76,35 @@ struct InsightsView: View {
         HakaCard {
             ViewThatFits(in: .horizontal) {
                 HStack(spacing: 18) {
-                    StreakMetric(icon: "flame.fill", title: "Current streak", value: model.streak?.current ?? 0, color: HakaPalette.rose)
+                    StreakMetric(icon: "flame.fill", title: "Current streak", value: snapshot.currentStreak, color: HakaPalette.rose)
                     Divider().overlay(HakaPalette.line)
-                    StreakMetric(icon: "trophy.fill", title: "Longest streak", value: model.streak?.longest ?? 0, color: HakaPalette.purple)
+                    StreakMetric(icon: "trophy.fill", title: "Longest streak", value: snapshot.longestStreak, color: HakaPalette.purple)
                 }
                 VStack(spacing: 18) {
-                    StreakMetric(icon: "flame.fill", title: "Current streak", value: model.streak?.current ?? 0, color: HakaPalette.rose)
-                    StreakMetric(icon: "trophy.fill", title: "Longest streak", value: model.streak?.longest ?? 0, color: HakaPalette.purple)
+                    StreakMetric(icon: "flame.fill", title: "Current streak", value: snapshot.currentStreak, color: HakaPalette.rose)
+                    StreakMetric(icon: "trophy.fill", title: "Longest streak", value: snapshot.longestStreak, color: HakaPalette.purple)
                 }
             }
         }
     }
 
     private var contributionCard: some View {
-        let total = max(1, model.myTaps + model.partnerTaps)
-        let mine = Int((Double(model.myTaps) / Double(total) * 100).rounded())
+        let split = snapshot.contribution
         return HakaCard(accent: HakaPalette.rose.opacity(0.5)) {
             VStack(alignment: .leading, spacing: 18) {
                 Text("Today’s Progress").font(.title3.bold())
                 HStack(spacing: 18) {
-                    Contribution(title: "You", taps: model.myTaps, percent: mine, color: HakaPalette.rose)
+                    Contribution(title: "You", taps: model.myTaps, percent: split.mine, color: HakaPalette.rose)
                     ZStack {
                         Circle().stroke(HakaPalette.purple.opacity(0.38), lineWidth: 16)
                         Circle()
-                            .trim(from: 0, to: Double(mine) / 100)
+                            .trim(from: 0, to: Double(split.mine) / 100)
                             .stroke(HakaPalette.rose, style: StrokeStyle(lineWidth: 16, lineCap: .round))
                             .rotationEffect(.degrees(-90))
                         Image(systemName: "heart.fill").foregroundStyle(HakaPalette.softRose)
                     }
                     .frame(width: 112, height: 112)
-                    Contribution(title: "Partner", taps: model.partnerTaps, percent: 100 - mine, color: HakaPalette.purple, trailing: true)
+                    Contribution(title: "Partner", taps: model.partnerTaps, percent: split.partner, color: HakaPalette.purple, trailing: true)
                 }
                 Text("You and your partner are filling the heart together 💕")
                     .foregroundStyle(HakaPalette.muted)
@@ -112,7 +115,7 @@ struct InsightsView: View {
     }
 
     private var weekCard: some View {
-        let values = weeklyValues
+        let values = InsightsProjection.weeklyValues(history: model.history, today: model.today)
         let average = values.isEmpty ? 0 : values.map(\.taps).reduce(0, +) / values.count
         return HakaCard {
             VStack(alignment: .leading, spacing: 16) {
@@ -156,29 +159,6 @@ struct InsightsView: View {
         }
     }
 
-    private var weeklyValues: [WeekValue] {
-        let calendar = Calendar.current
-        let parser = DateFormatter()
-        parser.calendar = Calendar(identifier: .gregorian)
-        parser.locale = Locale(identifier: "en_US_POSIX")
-        parser.dateFormat = "yyyy-MM-dd"
-        let source = model.history + (model.today.map {
-            [DailySummaryDTO(date: $0.date, tapsByUser: $0.tapsByUser, myTaps: $0.myTaps, partnerTaps: $0.partnerTaps, totalTaps: $0.totalTaps, completed: $0.completed, completedAt: $0.completedAt)]
-        } ?? [])
-        return source.compactMap { summary -> (Date, DailySummaryDTO)? in
-            parser.date(from: summary.date).map { ($0, summary) }
-        }
-        .filter { calendar.dateComponents([.day], from: $0.0, to: .now).day.map { 0...6 ~= $0 } ?? false }
-        .sorted { $0.0 < $1.0 }
-        .map {
-            WeekValue(
-                id: $0.1.date,
-                label: $0.0.formatted(.dateTime.weekday(.abbreviated)),
-                taps: $0.1.totalTaps,
-                today: calendar.isDateInToday($0.0)
-            )
-        }
-    }
 }
 
 private struct StreakMetric: View {
@@ -241,7 +221,7 @@ private struct HistoryRow: View {
                 .overlay(Circle().stroke(HakaPalette.rose.opacity(0.5)))
                 VStack(alignment: .leading, spacing: 3) {
                     Text("\(summary.totalTaps) taps").font(.headline)
-                    Text(summary.completed ? "Completed" : "In progress")
+                    Text(DailyProgressStatus(completed: summary.completed).title)
                         .foregroundStyle(summary.completed ? HakaPalette.green : HakaPalette.softRose)
                 }
                 Spacer()
@@ -257,13 +237,6 @@ private struct HistoryRow: View {
     }
     private var day: String { components[0] }
     private var month: String { components[1] }
-}
-
-private struct WeekValue: Identifiable {
-    let id: String
-    let label: String
-    let taps: Int
-    let today: Bool
 }
 
 private extension ISO8601DateFormatter {

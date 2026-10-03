@@ -132,7 +132,7 @@ xcodebuild \
   test
 ```
 
-The test target covers configuration helpers and is being expanded around heart decay, insight projections, and retry-safe command identifiers. Backend idempotency and authorization are additionally exercised by the Supabase SQL and smoke-test suites at the repository root.
+The test target currently covers invite formatting, timestamp normalization, exact decay boundaries and clamping, daily-status and streak mapping, contribution percentages, and authoritative seven-day insight projection. Backend idempotency and authorization are additionally exercised by the Supabase SQL and smoke-test suites at the repository root.
 
 ## Simulator notifications
 

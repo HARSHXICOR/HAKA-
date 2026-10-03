@@ -206,5 +206,5 @@ struct WidgetSnapshot: Codable, Sendable {
     let streak: Int
     let updatedAt: Date
 
-    static let empty = WidgetSnapshot(score: 0, maxScore: 10_000, myTaps: 0, partnerTaps: 0, streak: 0, updatedAt: .now)
+    static let empty = WidgetSnapshot(score: 0, maxScore: HeartRules.maximumScore, myTaps: 0, partnerTaps: 0, streak: 0, updatedAt: .now)
 }
