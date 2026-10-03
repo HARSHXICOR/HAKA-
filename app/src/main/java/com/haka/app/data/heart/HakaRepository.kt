@@ -152,11 +152,12 @@ class DefaultHakaRepository @Inject constructor(
     }
 
     override suspend fun retryQueuedTaps(limit: Int) = withContext(Dispatchers.IO) {
-        dao.queuedTaps(limit).forEach { queued ->
-            runCatching { submitTap(queued.coupleId, queued.tapId) }
-                .onSuccess { dao.deleteTap(queued.tapId) }
-                .onFailure { dao.incrementAttempt(queued.tapId) }
-        }
+        TapQueueRetrier.retry(
+            queuedTaps = dao.queuedTaps(limit),
+            submit = { coupleId, tapId -> submitTap(coupleId, tapId); Unit },
+            delete = dao::deleteTap,
+            markFailed = dao::incrementAttempt,
+        )
         bootstrap()
         Unit
     }
