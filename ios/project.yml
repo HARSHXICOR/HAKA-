@@ -30,6 +30,7 @@ targets:
           - Resources/Haka.entitlements
     resources:
       - path: Haka/Resources/Assets.xcassets
+      - path: Haka/Resources/Localizable.xcstrings
     info:
       path: Haka/Resources/Info.plist
       properties:

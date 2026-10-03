@@ -1,0 +1,106 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Completed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Completed" } }
+      }
+    },
+    "Connected" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Connected" } }
+      }
+    },
+    "Couple" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Couple" } }
+      }
+    },
+    "Daily History" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Daily History" } }
+      }
+    },
+    "Heart" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Heart" } }
+      }
+    },
+    "In progress" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "In progress" } }
+      }
+    },
+    "Insights" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Insights" } }
+      }
+    },
+    "Keep tapping to fill our heart" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Keep tapping to fill our heart" } }
+      }
+    },
+    "Love" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Love" } }
+      }
+    },
+    "Love Notes" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Love Notes" } }
+      }
+    },
+    "Offline" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Offline" } }
+      }
+    },
+    "Partner" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Partner" } }
+      }
+    },
+    "Sending…" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sending…" } }
+      }
+    },
+    "Settings" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Settings" } }
+      }
+    },
+    "Shared heart" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Shared heart" } }
+      }
+    },
+    "Synced automatically with your partner" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Synced automatically with your partner" } }
+      }
+    },
+    "Thinking of You" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Thinking of You" } }
+      }
+    },
+    "Today" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Today" } }
+      }
+    },
+    "Us" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Us" } }
+      }
+    },
+    "You" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "You" } }
+      }
+    }
+  },
+  "version" : "1.0"
+}

@@ -10,8 +10,8 @@ enum DailyProgressStatus: Equatable {
 
     var title: String {
         switch self {
-        case .completed: "Completed"
-        case .inProgress: "In progress"
+        case .completed: String(localized: "Completed")
+        case .inProgress: String(localized: "In progress")
         }
     }
 }

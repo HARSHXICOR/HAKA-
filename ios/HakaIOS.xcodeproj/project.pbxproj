@@ -24,6 +24,7 @@
 		8BDE1DD07CDCD2F97A73CCEB /* HakaTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB722B2F2FE0467857E9F91E /* HakaTheme.swift */; };
 		94E9FE6B575CBE86AB9D168F /* HeartEffects.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7E515CD8B4E86A49D8D3D31 /* HeartEffects.swift */; };
 		B01C28208372DDA9527671D7 /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA31CD10579B3392499715B6 /* AuthView.swift */; };
+		C22B157B293659C6568B3F62 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B567F515C99B1D15156A6CE8 /* Localizable.xcstrings */; };
 		C6A2D6A56708892EC49DAFE8 /* HakaWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 108B72B956E9018731ADAB03 /* HakaWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D129AD2BFFBD914B21B95BF6 /* HomeComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869F2FC0052098E278799726 /* HomeComponents.swift */; };
 		D2A92A6ED3BC2343C5F74BDF /* SessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE908C7D395A06F6DAB714C2 /* SessionStore.swift */; };
@@ -84,6 +85,7 @@
 		A289D717239C6FA46BAF574A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AE35338003E99F54A940DDCF /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		AE908C7D395A06F6DAB714C2 /* SessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStore.swift; sourceTree = "<group>"; };
+		B567F515C99B1D15156A6CE8 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		B7CC1ED777D46B64112F93E0 /* HakaWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HakaWidget.swift; sourceTree = "<group>"; };
 		BB722B2F2FE0467857E9F91E /* HakaTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HakaTheme.swift; sourceTree = "<group>"; };
 		CB240FB85AE07CF5FCF16731 /* HeartRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartRules.swift; sourceTree = "<group>"; };
@@ -211,6 +213,7 @@
 			isa = PBXGroup;
 			children = (
 				A289D717239C6FA46BAF574A /* Assets.xcassets */,
+				B567F515C99B1D15156A6CE8 /* Localizable.xcstrings */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -364,6 +367,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F568FF37A492A83693F1D2D0 /* Assets.xcassets in Resources */,
+				C22B157B293659C6568B3F62 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

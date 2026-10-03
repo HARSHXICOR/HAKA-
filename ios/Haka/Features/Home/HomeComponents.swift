@@ -40,7 +40,7 @@ struct HomeConnectionBadge: View {
                 .fill(connected ? HakaPalette.green : Color.orange)
                 .frame(width: 13, height: 13)
                 .shadow(color: connected ? HakaPalette.green : .orange, radius: 6)
-            Text(connected ? "Connected" : "Offline")
+            Text(connected ? String(localized: "Connected") : String(localized: "Offline"))
                 .font(.headline)
         }
         .padding(.horizontal, 20)
@@ -56,7 +56,7 @@ struct ThinkingOfYouButton: View {
 
     var body: some View {
         Button(action: action) {
-            Label(isBusy ? "Sending…" : "Thinking of You", systemImage: "sparkles")
+            Label(isBusy ? String(localized: "Sending…") : String(localized: "Thinking of You"), systemImage: "sparkles")
                 .font(.subheadline.bold())
                 .foregroundStyle(HakaPalette.softRose)
                 .padding(.horizontal, 19)
