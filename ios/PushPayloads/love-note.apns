@@ -1,0 +1,12 @@
+{
+  "Simulator Target Bundle": "com.haka.app.ios",
+  "aps": {
+    "alert": {
+      "title": "A Love Note 💌",
+      "body": "Your partner left you a private note in Haka."
+    },
+    "sound": "default",
+    "badge": 1
+  },
+  "type": "love_note"
+}

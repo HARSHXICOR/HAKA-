@@ -1,0 +1,693 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0BEB095B79598016C167A2FE /* HakaCoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30192524BB8415FB5DBCF1B0 /* HakaCoreTests.swift */; };
+		1AD77CF7F8D991414DBBBD08 /* PairingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D5A2CD06B2ED28A571C35A5 /* PairingView.swift */; };
+		1F82E1DBB678A78C30459852 /* HakaAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E61C8FFE5EFA0A9044230B2 /* HakaAPI.swift */; };
+		1FD82DAEE123647BBE056CAE /* HakaModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C3F59240C01B73300A4AEAB /* HakaModels.swift */; };
+		34B46D02F6D0B1EA44EE7B90 /* HakaWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7CC1ED777D46B64112F93E0 /* HakaWidget.swift */; };
+		3F89672771BDB4401A29D0A2 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CA16611300516F2624CC142 /* NotificationManager.swift */; };
+		4925ADA53913DE398974CAB4 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52B33030B4084EDDB1F077B8 /* RootView.swift */; };
+		4BDAB8E9CF52E4153210CE57 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 431FBF2D32D914D8ECF9929F /* SettingsView.swift */; };
+		5B34CECA924C77EC255E4B68 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE35338003E99F54A940DDCF /* HomeView.swift */; };
+		6184282ABD05AFF648C3194A /* StoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 297B7DCE09646F09DEA3BBD8 /* StoryView.swift */; };
+		8505750BFEDB2EC164B647E6 /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC80FA449B71F820139D120B /* InsightsView.swift */; };
+		8764B01E8DF8F759B63761CE /* HakaConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC69D67CE87369E25CED02B1 /* HakaConfiguration.swift */; };
+		887DA248D2C4090396228641 /* LoveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A3207D8F501924ADA6CA22A /* LoveView.swift */; };
+		8BDE1DD07CDCD2F97A73CCEB /* HakaTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB722B2F2FE0467857E9F91E /* HakaTheme.swift */; };
+		B01C28208372DDA9527671D7 /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA31CD10579B3392499715B6 /* AuthView.swift */; };
+		C6A2D6A56708892EC49DAFE8 /* HakaWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 108B72B956E9018731ADAB03 /* HakaWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		D2A92A6ED3BC2343C5F74BDF /* SessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE908C7D395A06F6DAB714C2 /* SessionStore.swift */; };
+		D88FADE7923E4B9D36510C35 /* HakaAppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769BFBD33598F23160154CB5 /* HakaAppModel.swift */; };
+		DFD8EC313BDC928FBE79F65C /* HakaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F68ABDFE93D120343482107 /* HakaApp.swift */; };
+		F568FF37A492A83693F1D2D0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A289D717239C6FA46BAF574A /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		6F1614894FFD47B5FD4BBB19 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EEB3051FF098739B678BD665 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8D916F050E6CF1E9EB3C3CE3;
+			remoteInfo = HakaWidget;
+		};
+		73BBF512FAAA5BB283ABB1F8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EEB3051FF098739B678BD665 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 426DEB4B76869EE6D309A09D;
+			remoteInfo = Haka;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		B1119FE320466EBF514F12B2 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				C6A2D6A56708892EC49DAFE8 /* HakaWidget.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		0616E46EE563F1B29B5F7D43 /* Haka.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Haka.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		108B72B956E9018731ADAB03 /* HakaWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = HakaWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		1CA16611300516F2624CC142 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		1E61C8FFE5EFA0A9044230B2 /* HakaAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HakaAPI.swift; sourceTree = "<group>"; };
+		297B7DCE09646F09DEA3BBD8 /* StoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryView.swift; sourceTree = "<group>"; };
+		30192524BB8415FB5DBCF1B0 /* HakaCoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HakaCoreTests.swift; sourceTree = "<group>"; };
+		431FBF2D32D914D8ECF9929F /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		52B33030B4084EDDB1F077B8 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		750161216A63B593C6136127 /* HakaTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = HakaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		769BFBD33598F23160154CB5 /* HakaAppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HakaAppModel.swift; sourceTree = "<group>"; };
+		7D5A2CD06B2ED28A571C35A5 /* PairingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingView.swift; sourceTree = "<group>"; };
+		7F68ABDFE93D120343482107 /* HakaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HakaApp.swift; sourceTree = "<group>"; };
+		9A3207D8F501924ADA6CA22A /* LoveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoveView.swift; sourceTree = "<group>"; };
+		9C3F59240C01B73300A4AEAB /* HakaModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HakaModels.swift; sourceTree = "<group>"; };
+		A289D717239C6FA46BAF574A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		AE35338003E99F54A940DDCF /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		AE908C7D395A06F6DAB714C2 /* SessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStore.swift; sourceTree = "<group>"; };
+		B7CC1ED777D46B64112F93E0 /* HakaWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HakaWidget.swift; sourceTree = "<group>"; };
+		BB722B2F2FE0467857E9F91E /* HakaTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HakaTheme.swift; sourceTree = "<group>"; };
+		DC69D67CE87369E25CED02B1 /* HakaConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HakaConfiguration.swift; sourceTree = "<group>"; };
+		EA31CD10579B3392499715B6 /* AuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
+		F5C4AE8F970BEA1462ED01A3 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
+		FC80FA449B71F820139D120B /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		22C28372A07EEA0CAA9B358E /* Love */ = {
+			isa = PBXGroup;
+			children = (
+				9A3207D8F501924ADA6CA22A /* LoveView.swift */,
+			);
+			path = Love;
+			sourceTree = "<group>";
+		};
+		22EB8FD705844F06F73FCE84 /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				AE35338003E99F54A940DDCF /* HomeView.swift */,
+			);
+			path = Home;
+			sourceTree = "<group>";
+		};
+		2696E995318938440B2B1936 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				1E61C8FFE5EFA0A9044230B2 /* HakaAPI.swift */,
+				DC69D67CE87369E25CED02B1 /* HakaConfiguration.swift */,
+				9C3F59240C01B73300A4AEAB /* HakaModels.swift */,
+				BB722B2F2FE0467857E9F91E /* HakaTheme.swift */,
+				1CA16611300516F2624CC142 /* NotificationManager.swift */,
+				AE908C7D395A06F6DAB714C2 /* SessionStore.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		42F7EBB5587BDD97EAA3DFD8 /* Story */ = {
+			isa = PBXGroup;
+			children = (
+				297B7DCE09646F09DEA3BBD8 /* StoryView.swift */,
+			);
+			path = Story;
+			sourceTree = "<group>";
+		};
+		5BB626BDE6F14052FC56B421 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				0616E46EE563F1B29B5F7D43 /* Haka.app */,
+				750161216A63B593C6136127 /* HakaTests.xctest */,
+				108B72B956E9018731ADAB03 /* HakaWidget.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		5DA4163154E7808C813B9068 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				7F68ABDFE93D120343482107 /* HakaApp.swift */,
+				769BFBD33598F23160154CB5 /* HakaAppModel.swift */,
+				52B33030B4084EDDB1F077B8 /* RootView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		713C5889B2D6FD63005A502A /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				431FBF2D32D914D8ECF9929F /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		7C75DD58287B8757391D6897 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				EA31CD10579B3392499715B6 /* AuthView.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		7CC4CB388E5C497190603D91 /* Haka */ = {
+			isa = PBXGroup;
+			children = (
+				5DA4163154E7808C813B9068 /* App */,
+				2696E995318938440B2B1936 /* Core */,
+				DEECBD635C3967A39E87148F /* Features */,
+				A7E59F57624E661FCD68AA88 /* Resources */,
+			);
+			path = Haka;
+			sourceTree = "<group>";
+		};
+		83CF9A7AA832A14D5A3A95D1 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				30192524BB8415FB5DBCF1B0 /* HakaCoreTests.swift */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		87C2C91F5DD7E31937112D34 /* HakaWidget */ = {
+			isa = PBXGroup;
+			children = (
+				B7CC1ED777D46B64112F93E0 /* HakaWidget.swift */,
+			);
+			path = HakaWidget;
+			sourceTree = "<group>";
+		};
+		8E76EDE1B52F070AB59C59B1 /* Insights */ = {
+			isa = PBXGroup;
+			children = (
+				FC80FA449B71F820139D120B /* InsightsView.swift */,
+			);
+			path = Insights;
+			sourceTree = "<group>";
+		};
+		A7E59F57624E661FCD68AA88 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A289D717239C6FA46BAF574A /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		B4D9F38E8C16F8893577FF5A /* Pairing */ = {
+			isa = PBXGroup;
+			children = (
+				7D5A2CD06B2ED28A571C35A5 /* PairingView.swift */,
+			);
+			path = Pairing;
+			sourceTree = "<group>";
+		};
+		BFE26690B52223C6DD871526 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				F5C4AE8F970BEA1462ED01A3 /* Secrets.xcconfig */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+		D19105B414EE57441787BF7B = {
+			isa = PBXGroup;
+			children = (
+				BFE26690B52223C6DD871526 /* Config */,
+				7CC4CB388E5C497190603D91 /* Haka */,
+				87C2C91F5DD7E31937112D34 /* HakaWidget */,
+				83CF9A7AA832A14D5A3A95D1 /* Tests */,
+				5BB626BDE6F14052FC56B421 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		DEECBD635C3967A39E87148F /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				7C75DD58287B8757391D6897 /* Auth */,
+				22EB8FD705844F06F73FCE84 /* Home */,
+				8E76EDE1B52F070AB59C59B1 /* Insights */,
+				22C28372A07EEA0CAA9B358E /* Love */,
+				B4D9F38E8C16F8893577FF5A /* Pairing */,
+				713C5889B2D6FD63005A502A /* Settings */,
+				42F7EBB5587BDD97EAA3DFD8 /* Story */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		426DEB4B76869EE6D309A09D /* Haka */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C2661A7E06FB8D2B14A7D0D5 /* Build configuration list for PBXNativeTarget "Haka" */;
+			buildPhases = (
+				F5C5961638BC4A7856743E25 /* Sources */,
+				7551BD2202F126E568C79705 /* Resources */,
+				B1119FE320466EBF514F12B2 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				7E94D3114CF07871C1E749EB /* PBXTargetDependency */,
+			);
+			name = Haka;
+			packageProductDependencies = (
+			);
+			productName = Haka;
+			productReference = 0616E46EE563F1B29B5F7D43 /* Haka.app */;
+			productType = "com.apple.product-type.application";
+		};
+		8D916F050E6CF1E9EB3C3CE3 /* HakaWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A94CD86478D2C63A80234B9A /* Build configuration list for PBXNativeTarget "HakaWidget" */;
+			buildPhases = (
+				DA1B76832F93096052A7C2E3 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = HakaWidget;
+			packageProductDependencies = (
+			);
+			productName = HakaWidget;
+			productReference = 108B72B956E9018731ADAB03 /* HakaWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		C813AFB605FE1A9B685BE72E /* HakaTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FBAEB811DF50ED98A4B129D5 /* Build configuration list for PBXNativeTarget "HakaTests" */;
+			buildPhases = (
+				AD6E08D044C190E30A05BD16 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				46B4BE0C75F625B2FDFD2C99 /* PBXTargetDependency */,
+			);
+			name = HakaTests;
+			packageProductDependencies = (
+			);
+			productName = HakaTests;
+			productReference = 750161216A63B593C6136127 /* HakaTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		EEB3051FF098739B678BD665 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					426DEB4B76869EE6D309A09D = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					8D916F050E6CF1E9EB3C3CE3 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					C813AFB605FE1A9B685BE72E = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = A4C755CA76A42135EFCA4DEF /* Build configuration list for PBXProject "HakaIOS" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = D19105B414EE57441787BF7B;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 5BB626BDE6F14052FC56B421 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				426DEB4B76869EE6D309A09D /* Haka */,
+				8D916F050E6CF1E9EB3C3CE3 /* HakaWidget */,
+				C813AFB605FE1A9B685BE72E /* HakaTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		7551BD2202F126E568C79705 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F568FF37A492A83693F1D2D0 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AD6E08D044C190E30A05BD16 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0BEB095B79598016C167A2FE /* HakaCoreTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DA1B76832F93096052A7C2E3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				34B46D02F6D0B1EA44EE7B90 /* HakaWidget.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F5C5961638BC4A7856743E25 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B01C28208372DDA9527671D7 /* AuthView.swift in Sources */,
+				1F82E1DBB678A78C30459852 /* HakaAPI.swift in Sources */,
+				DFD8EC313BDC928FBE79F65C /* HakaApp.swift in Sources */,
+				D88FADE7923E4B9D36510C35 /* HakaAppModel.swift in Sources */,
+				8764B01E8DF8F759B63761CE /* HakaConfiguration.swift in Sources */,
+				1FD82DAEE123647BBE056CAE /* HakaModels.swift in Sources */,
+				8BDE1DD07CDCD2F97A73CCEB /* HakaTheme.swift in Sources */,
+				5B34CECA924C77EC255E4B68 /* HomeView.swift in Sources */,
+				8505750BFEDB2EC164B647E6 /* InsightsView.swift in Sources */,
+				887DA248D2C4090396228641 /* LoveView.swift in Sources */,
+				3F89672771BDB4401A29D0A2 /* NotificationManager.swift in Sources */,
+				1AD77CF7F8D991414DBBBD08 /* PairingView.swift in Sources */,
+				4925ADA53913DE398974CAB4 /* RootView.swift in Sources */,
+				D2A92A6ED3BC2343C5F74BDF /* SessionStore.swift in Sources */,
+				4BDAB8E9CF52E4153210CE57 /* SettingsView.swift in Sources */,
+				6184282ABD05AFF648C3194A /* StoryView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		46B4BE0C75F625B2FDFD2C99 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 426DEB4B76869EE6D309A09D /* Haka */;
+			targetProxy = 73BBF512FAAA5BB283ABB1F8 /* PBXContainerItemProxy */;
+		};
+		7E94D3114CF07871C1E749EB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8D916F050E6CF1E9EB3C3CE3 /* HakaWidget */;
+			targetProxy = 6F1614894FFD47B5FD4BBB19 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		005D428BC537F29748C507F6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = F5C4AE8F970BEA1462ED01A3 /* Secrets.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 8;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MARKETING_VERSION = 2.2.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.10;
+			};
+			name = Release;
+		};
+		2F2A96A7144904F3F460D5BF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.haka.app.ios.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Haka.app/Haka";
+			};
+			name = Release;
+		};
+		4D44439AA11B75D621C7A886 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = F5C4AE8F970BEA1462ED01A3 /* Secrets.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 8;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MARKETING_VERSION = 2.2.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.10;
+			};
+			name = Debug;
+		};
+		78094C94EE902BFDE07D7502 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = HakaWidget/HakaWidget.entitlements;
+				INFOPLIST_FILE = HakaWidget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.haka.app.ios.widget;
+				PRODUCT_NAME = HakaWidget;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		94EF7B36938BC17204A914EE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Haka/Resources/Haka.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = Haka/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.haka.app.ios;
+				PRODUCT_NAME = Haka;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		CE395EE0ED52BE7C8E6C6B39 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Haka/Resources/Haka.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = Haka/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.haka.app.ios;
+				PRODUCT_NAME = Haka;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		DE886EB454A0EAE67177585C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = HakaWidget/HakaWidget.entitlements;
+				INFOPLIST_FILE = HakaWidget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.haka.app.ios.widget;
+				PRODUCT_NAME = HakaWidget;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F7DD1AC139981B8663A06170 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.haka.app.ios.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Haka.app/Haka";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A4C755CA76A42135EFCA4DEF /* Build configuration list for PBXProject "HakaIOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4D44439AA11B75D621C7A886 /* Debug */,
+				005D428BC537F29748C507F6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		A94CD86478D2C63A80234B9A /* Build configuration list for PBXNativeTarget "HakaWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DE886EB454A0EAE67177585C /* Debug */,
+				78094C94EE902BFDE07D7502 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C2661A7E06FB8D2B14A7D0D5 /* Build configuration list for PBXNativeTarget "Haka" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CE395EE0ED52BE7C8E6C6B39 /* Debug */,
+				94EF7B36938BC17204A914EE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		FBAEB811DF50ED98A4B129D5 /* Build configuration list for PBXNativeTarget "HakaTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F7DD1AC139981B8663A06170 /* Debug */,
+				2F2A96A7144904F3F460D5BF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = EEB3051FF098739B678BD665 /* Project object */;
+}

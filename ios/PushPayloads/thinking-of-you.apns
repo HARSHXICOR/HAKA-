@@ -1,0 +1,12 @@
+{
+  "Simulator Target Bundle": "com.haka.app.ios",
+  "aps": {
+    "alert": {
+      "title": "Thinking of You 💕",
+      "body": "Your partner is thinking of you."
+    },
+    "sound": "default",
+    "badge": 1
+  },
+  "type": "thinking_of_you"
+}

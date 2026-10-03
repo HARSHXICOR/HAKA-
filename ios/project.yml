@@ -1,0 +1,115 @@
+name: HakaIOS
+options:
+  bundleIdPrefix: com.haka
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+settings:
+  base:
+    SWIFT_VERSION: "5.10"
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_STYLE: Automatic
+    CURRENT_PROJECT_VERSION: 8
+    MARKETING_VERSION: 2.2.0
+    ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+configs:
+  Debug: debug
+  Release: release
+configFiles:
+  Debug: Config/Secrets.xcconfig
+  Release: Config/Secrets.xcconfig
+targets:
+  Haka:
+    type: application
+    platform: iOS
+    sources:
+      - path: Haka
+        excludes:
+          - Resources/Info.plist
+          - Resources/Haka.entitlements
+    resources:
+      - path: Haka/Resources/Assets.xcassets
+    info:
+      path: Haka/Resources/Info.plist
+      properties:
+        CFBundleDisplayName: Haka
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleURLTypes:
+          - CFBundleTypeRole: Editor
+            CFBundleURLName: com.haka.auth
+            CFBundleURLSchemes:
+              - haka
+        SUPABASE_URL: $(SUPABASE_URL)
+        SUPABASE_ANON_KEY: $(SUPABASE_ANON_KEY)
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        UILaunchScreen:
+          UIColorName: LaunchBackground
+        UIUserInterfaceStyle: Dark
+    entitlements:
+      path: Haka/Resources/Haka.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.haka.shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.haka.app.ios
+        PRODUCT_NAME: Haka
+        TARGETED_DEVICE_FAMILY: "1,2"
+    dependencies:
+      - target: HakaWidget
+        embed: true
+  HakaWidget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: HakaWidget
+        excludes:
+          - Info.plist
+          - HakaWidget.entitlements
+    info:
+      path: HakaWidget/Info.plist
+      properties:
+        CFBundleDisplayName: Haka Widget
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    entitlements:
+      path: HakaWidget/HakaWidget.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.haka.shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.haka.app.ios.widget
+        PRODUCT_NAME: HakaWidget
+        SKIP_INSTALL: YES
+        TARGETED_DEVICE_FAMILY: "1,2"
+  HakaTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: Tests
+    dependencies:
+      - target: Haka
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.haka.app.ios.tests
+schemes:
+  Haka:
+    build:
+      targets:
+        Haka: all
+        HakaWidget: all
+        HakaTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - HakaTests
+    archive:
+      config: Release
