@@ -1,4 +1,5 @@
 functions/node_modules/
+.DS_Store
 functions/lib/
 functions/.firebase/
 node_modules/
@@ -15,3 +16,8 @@ local.properties
 build/
 app/build/
 app/google-services.json
+ios/Config/Secrets.xcconfig
+ios/*.xcodeproj/xcuserdata/
+ios/*.xcworkspace/xcuserdata/
+ios/DerivedData/
+*.xcuserstate
