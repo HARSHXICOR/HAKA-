@@ -25,8 +25,6 @@ final class HakaAppModel: ObservableObject {
     @Published private(set) var today: TodayDTO?
     @Published private(set) var streak: StreakDTO?
     @Published private(set) var history: [DailySummaryDTO] = []
-    @Published private(set) var loveNotes: [LoveNoteDTO] = []
-    @Published private(set) var moods: [String: String] = [:]
     @Published private(set) var story = StoryResponse.empty
     @Published private(set) var inviteCode: String?
     @Published private(set) var inviteExpiresAt: Date?
@@ -39,7 +37,7 @@ final class HakaAppModel: ObservableObject {
 
     let notifications = NotificationManager()
 
-    private let api: HakaAPI?
+    let api: HakaAPI?
     private var syncTask: Task<Void, Never>?
     private var clockTask: Task<Void, Never>?
     private var oauthCallback: URL?
@@ -180,36 +178,6 @@ final class HakaAppModel: ObservableObject {
                 thinkingPulse += 1
                 message = result.notificationSent ? "Sent to your partner 💕" : "Saved — partner notification is unavailable."
             }
-        }
-    }
-
-    func loadLove() async {
-        guard let api, let coupleID else { return }
-        do {
-            async let notes = api.loveNotes(coupleId: coupleID)
-            async let mood = api.moods(coupleId: coupleID)
-            loveNotes = try await notes
-            moods = try await mood.moods
-        } catch {
-            message = error.localizedDescription
-        }
-    }
-
-    func sendLoveNote(_ body: String) async {
-        let value = body.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let api, let coupleID, !value.isEmpty else { return }
-        await runBusy {
-            let response = try await api.sendLoveNote(coupleId: coupleID, body: String(value.prefix(160)))
-            loveNotes.insert(response.note, at: 0)
-            message = response.notificationSent ? "Love Note sent 💌" : "Love Note saved."
-        }
-    }
-
-    func setMood(_ mood: String) async {
-        guard let api, let coupleID else { return }
-        await runBusy {
-            try await api.setMood(coupleId: coupleID, mood: mood)
-            moods = try await api.moods(coupleId: coupleID).moods
         }
     }
 
@@ -390,8 +358,6 @@ final class HakaAppModel: ObservableObject {
         today = nil
         streak = nil
         history = []
-        loveNotes = []
-        moods = [:]
         story = .empty
         UserDefaults(suiteName: "group.com.haka.shared")?.removeObject(forKey: "widgetSnapshot")
         WidgetCenter.shared.reloadAllTimelines()
@@ -404,7 +370,6 @@ final class HakaAppModel: ObservableObject {
                 try? await Task.sleep(for: .seconds(2))
                 guard let self else { return }
                 await self.refresh()
-                if self.phase == .paired && self.selectedTab == 2 { await self.loadLove() }
                 if self.phase == .paired && self.selectedTab == 3 { await self.loadStory() }
             }
         }

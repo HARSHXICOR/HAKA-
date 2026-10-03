@@ -56,7 +56,9 @@ private struct MainTabs: View {
             NavigationStack { InsightsView() }
                 .tag(1)
                 .tabItem { Label("Insights", systemImage: "chart.bar.fill") }
-            NavigationStack { LoveView() }
+            NavigationStack {
+                LoveView(api: model.api, coupleID: model.coupleID, userID: model.userID, partnerID: model.partnerID)
+            }
                 .tag(2)
                 .tabItem { Label("Love", systemImage: "heart.text.square.fill") }
             NavigationStack { StoryView() }
@@ -70,7 +72,6 @@ private struct MainTabs: View {
         .toolbarBackground(.ultraThinMaterial, for: .tabBar)
         .toolbarBackground(.visible, for: .tabBar)
         .onChange(of: model.selectedTab) { newValue in
-            if newValue == 2 { Task { await model.loadLove() } }
             if newValue == 3 { Task { await model.loadStory() } }
         }
     }

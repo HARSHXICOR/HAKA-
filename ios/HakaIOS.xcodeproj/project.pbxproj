@@ -26,6 +26,7 @@
 		B01C28208372DDA9527671D7 /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA31CD10579B3392499715B6 /* AuthView.swift */; };
 		C22B157B293659C6568B3F62 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B567F515C99B1D15156A6CE8 /* Localizable.xcstrings */; };
 		C6A2D6A56708892EC49DAFE8 /* HakaWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 108B72B956E9018731ADAB03 /* HakaWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		CC069882C3DEC90180B3C071 /* LoveViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538F92BC1BC38C83B540E9D6 /* LoveViewModel.swift */; };
 		D129AD2BFFBD914B21B95BF6 /* HomeComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869F2FC0052098E278799726 /* HomeComponents.swift */; };
 		D2A92A6ED3BC2343C5F74BDF /* SessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE908C7D395A06F6DAB714C2 /* SessionStore.swift */; };
 		D88FADE7923E4B9D36510C35 /* HakaAppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769BFBD33598F23160154CB5 /* HakaAppModel.swift */; };
@@ -74,6 +75,7 @@
 		30192524BB8415FB5DBCF1B0 /* HakaCoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HakaCoreTests.swift; sourceTree = "<group>"; };
 		431FBF2D32D914D8ECF9929F /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		52B33030B4084EDDB1F077B8 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		538F92BC1BC38C83B540E9D6 /* LoveViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoveViewModel.swift; sourceTree = "<group>"; };
 		693A633E9E17CAB168628E6F /* InsightsProjection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsProjection.swift; sourceTree = "<group>"; };
 		750161216A63B593C6136127 /* HakaTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = HakaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		769BFBD33598F23160154CB5 /* HakaAppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HakaAppModel.swift; sourceTree = "<group>"; };
@@ -101,6 +103,7 @@
 			isa = PBXGroup;
 			children = (
 				9A3207D8F501924ADA6CA22A /* LoveView.swift */,
+				538F92BC1BC38C83B540E9D6 /* LoveViewModel.swift */,
 			);
 			path = Love;
 			sourceTree = "<group>";
@@ -408,6 +411,7 @@
 				66400619474CA48BDE8B9D8B /* InsightsProjection.swift in Sources */,
 				8505750BFEDB2EC164B647E6 /* InsightsView.swift in Sources */,
 				887DA248D2C4090396228641 /* LoveView.swift in Sources */,
+				CC069882C3DEC90180B3C071 /* LoveViewModel.swift in Sources */,
 				3F89672771BDB4401A29D0A2 /* NotificationManager.swift in Sources */,
 				1AD77CF7F8D991414DBBBD08 /* PairingView.swift in Sources */,
 				4925ADA53913DE398974CAB4 /* RootView.swift in Sources */,

@@ -33,6 +33,8 @@ The current project runs fully in the iOS Simulator without an Apple Developer m
 SwiftUI views
     │
     ├── HakaAppModel            session, pairing, heart, navigation
+    ├── LoveViewModel           Love Notes, moods, feature refresh loop
+    ├── InsightsProjection      pure daily and seven-day mapping
     ├── Feature views           Heart, Insights, Love, Us, Settings
     └── WidgetSnapshotStore     App Group projection for WidgetKit
             │

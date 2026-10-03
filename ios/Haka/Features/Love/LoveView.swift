@@ -1,9 +1,15 @@
 import SwiftUI
 
 struct LoveView: View {
-    @EnvironmentObject private var model: HakaAppModel
+    @StateObject private var viewModel: LoveViewModel
     @State private var composing = false
     @State private var note = ""
+
+    init(api: HakaAPI?, coupleID: String?, userID: String, partnerID: String?) {
+        _viewModel = StateObject(
+            wrappedValue: LoveViewModel(api: api, coupleID: coupleID, userID: userID, partnerID: partnerID)
+        )
+    }
 
     var body: some View {
         ZStack {
@@ -28,9 +34,9 @@ struct LoveView: View {
                         color: HakaPalette.purple,
                         title: "Thinking of You",
                         subtitle: "Send a small private nudge to your partner.",
-                        button: model.isBusy ? "Sending…" : "Send Thinking of You"
+                        button: viewModel.isBusy ? "Sending…" : "Send Thinking of You"
                     ) {
-                        Task { await model.sendThinkingOfYou() }
+                        Task { await viewModel.sendThinkingOfYou() }
                     }
 
                     moodCard
@@ -38,9 +44,14 @@ struct LoveView: View {
                     HStack {
                         Text("Recent notes").font(.title2.bold())
                         Spacer()
-                        if model.isBusy { ProgressView().tint(HakaPalette.rose) }
+                        if viewModel.isBusy { ProgressView().tint(HakaPalette.rose) }
                     }
-                    if model.loveNotes.isEmpty {
+                    if let message = viewModel.message {
+                        Text(message)
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(HakaPalette.softRose)
+                    }
+                    if viewModel.notes.isEmpty {
                         HakaCard {
                             VStack(spacing: 8) {
                                 Image(systemName: "envelope.heart.fill")
@@ -53,17 +64,17 @@ struct LoveView: View {
                             .frame(maxWidth: .infinity)
                         }
                     } else {
-                        ForEach(model.loveNotes) { item in
-                            LoveNoteCard(note: item, sentByMe: item.senderUid == model.userID)
+                        ForEach(viewModel.notes) { item in
+                            LoveNoteCard(note: item, sentByMe: item.senderUid == viewModel.userID)
                         }
                     }
                 }
                 .padding(20)
             }
-            .refreshable { await model.loadLove() }
+            .refreshable { await viewModel.load() }
         }
         .navigationBarHidden(true)
-        .task { await model.loadLove() }
+        .task { await viewModel.observe() }
         .sheet(isPresented: $composing) {
             NavigationStack {
                 VStack(alignment: .leading, spacing: 12) {
@@ -95,7 +106,7 @@ struct LoveView: View {
                             let value = note
                             note = ""
                             composing = false
-                            Task { await model.sendLoveNote(value) }
+                            Task { await viewModel.sendLoveNote(value) }
                         }
                         .disabled(note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                         .foregroundStyle(HakaPalette.rose)
@@ -111,8 +122,8 @@ struct LoveView: View {
         let options = [
             ("happy", "😊"), ("loved", "🥰"), ("calm", "😌"), ("missing", "🥺"), ("tired", "😴")
         ]
-        let mine = model.moods[model.userID]
-        let partner = model.partnerID.flatMap { model.moods[$0] }
+        let mine = viewModel.myMood
+        let partner = viewModel.partnerMood
         return HakaCard(accent: HakaPalette.green.opacity(0.45)) {
             VStack(alignment: .leading, spacing: 15) {
                 HStack(spacing: 13) {
@@ -128,7 +139,7 @@ struct LoveView: View {
                 HStack {
                     ForEach(options, id: \.0) { option in
                         Button {
-                            Task { await model.setMood(option.0) }
+                            Task { await viewModel.setMood(option.0) }
                         } label: {
                             Text(option.1)
                                 .font(.title3)
