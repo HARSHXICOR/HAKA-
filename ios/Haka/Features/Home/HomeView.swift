@@ -2,6 +2,7 @@ import SwiftUI
 
 struct HomeView: View {
     @EnvironmentObject private var model: HakaAppModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var particles: [HeartParticle] = []
     @State private var rainToken = 0
     @State private var wasFull = false
@@ -61,7 +62,7 @@ struct HomeView: View {
         .navigationBarHidden(true)
         .onChange(of: model.effectiveScore) { newValue in
             let full = newValue >= model.heartMaximumScore
-            if full && !wasFull {
+            if full && !wasFull && !reduceMotion {
                 rainToken += 1
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2.2) { rainToken = 0 }
             }
@@ -71,6 +72,7 @@ struct HomeView: View {
 
     private func tapped() {
         model.tapHeart()
+        guard !reduceMotion else { return }
         let created = (0..<5).map { index in
             HeartParticle(
                 x: CGFloat.random(in: 0.16...0.84),

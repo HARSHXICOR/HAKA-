@@ -439,7 +439,10 @@ Supabase remains the application backend, but Apple still requires remote iOS no
 
 ~~~bash
 ./gradlew :app:assembleDebug --no-daemon
+./gradlew :app:testDebugUnitTest --no-daemon
 ~~~
+
+The Android unit suite verifies that offline tap retries preserve their original idempotency IDs and record success/failure outcomes correctly.
 
 ### iOS build
 
@@ -465,6 +468,8 @@ xcodebuild \\
   CODE_SIGNING_ALLOWED=NO \\
   test
 ~~~
+
+The iOS suite currently contains seven tests covering invite formatting, timestamp normalization, exact decay boundaries and clamping, daily/streak projection, contribution percentages, and seven-day history mapping.
 
 ### Local Supabase database
 

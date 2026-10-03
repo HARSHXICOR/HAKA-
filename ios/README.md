@@ -150,6 +150,7 @@ This does not test the production Supabase/FCM/APNs delivery route. Production i
 ## Accessibility and UI
 
 - The heart exposes a VoiceOver label, current percentage value, and activation hint.
+- Reduce Motion keeps the liquid surface static and suppresses decorative tap and full-heart particles.
 - Native `Button`, `TabView`, `NavigationStack`, `Chart`, and `PhotosPicker` controls preserve platform semantics.
 - Semantic colors and reusable card/button styles live in `HakaTheme.swift`.
 - Layouts use adaptive SwiftUI containers rather than fixed Android dimensions.

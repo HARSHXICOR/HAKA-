@@ -31,6 +31,7 @@ struct HeartShape: Shape {
 }
 
 struct LiquidHeartView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let fraction: Double
     let percentage: Int
 
@@ -38,7 +39,7 @@ struct LiquidHeartView: View {
         TimelineView(.animation(minimumInterval: 1 / 30)) { timeline in
             GeometryReader { proxy in
                 let rect = CGRect(origin: .zero, size: proxy.size)
-                let time = timeline.date.timeIntervalSinceReferenceDate
+                let time = reduceMotion ? 0 : timeline.date.timeIntervalSinceReferenceDate
                 ZStack {
                     HeartShape()
                         .fill(
