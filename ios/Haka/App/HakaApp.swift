@@ -23,6 +23,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
 struct HakaApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var model = HakaAppModel()
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some Scene {
         WindowGroup {
@@ -30,6 +31,10 @@ struct HakaApp: App {
                 .environmentObject(model)
                 .task { await model.start() }
                 .onOpenURL { model.handleOAuthCallback($0) }
+                .onChange(of: scenePhase) { phase in
+                    guard phase == .active else { return }
+                    Task { await model.applicationDidBecomeActive() }
+                }
         }
     }
 }

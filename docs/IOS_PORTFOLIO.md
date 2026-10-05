@@ -13,7 +13,7 @@ This document is the fastest way to review the iOS engineering work. The complet
 | Backend integration | Supabase Auth, authenticated Edge Functions, PostgreSQL/RLS, private Storage |
 | UI depth | Custom heart `Shape`, clipped `Canvas` liquid animation, haptics, particles, adaptive cards |
 | Accessibility | Semantic controls, VoiceOver values and hints, Reduce Motion, String Catalog foundation |
-| Quality | 7 XCTest cases, deterministic domain rules, XcodeGen, GitHub Actions simulator CI |
+| Quality | 10 XCTest cases, deterministic domain rules, XcodeGen, GitHub Actions simulator CI |
 | Current scope | Simulator-complete; physical-device signing and production APNs require Apple credentials |
 
 ## Product tour
@@ -53,6 +53,7 @@ The client submits commands rather than writing trusted values. Heart decay, tap
 | App lifecycle and routing | [`HakaApp.swift`](../ios/Haka/App/HakaApp.swift), [`RootView.swift`](../ios/Haka/App/RootView.swift) | App delegate, notification presentation, phase routing, tab composition |
 | Shared state | [`HakaAppModel.swift`](../ios/Haka/App/HakaAppModel.swift) | Session bootstrap, pairing state, heart clock, server refresh, widget projection |
 | API client | [`HakaAPI.swift`](../ios/Haka/Core/HakaAPI.swift) | URLSession requests, Codable transport, auth refresh, OAuth linking, Edge Functions |
+| Offline outbox | [`TapQueue.swift`](../ios/Haka/Core/TapQueue.swift) | Atomic persistence, account scoping, FIFO replay, exponential backoff, seven-day expiry, and capacity limits |
 | Domain rules | [`HeartRules.swift`](../ios/Haka/Core/HeartRules.swift) | Exact 30-second boundaries, clamping, fraction and percentage calculations |
 | Insights mapping | [`InsightsProjection.swift`](../ios/Haka/Core/InsightsProjection.swift) | Daily status, contribution split, deduplicated seven-day projection |
 | Home composition | [`HomeView.swift`](../ios/Haka/Features/Home/HomeView.swift) | Accessible heart button, adaptive composition, feature orchestration |
@@ -87,7 +88,7 @@ The app is complete for Simulator development. Production remote push on iOS is 
 
 ## Testing and automation
 
-The XCTest target currently contains seven tests covering:
+The XCTest target contains ten tests covering:
 
 - Invite-code normalization
 - Seconds-versus-milliseconds timestamp normalization
@@ -96,6 +97,9 @@ The XCTest target currently contains seven tests covering:
 - Daily completion and streak mapping
 - Contribution percentages, including the zero-tap case
 - Seven-day filtering and authoritative replacement of today’s history entry
+- Persistent FIFO restoration with original idempotency IDs
+- Retry interruption without losing failed or unattempted commands
+- Seven-day expiry and bounded queue capacity
 
 GitHub Actions runs on macOS, installs XcodeGen, generates the project, discovers an available iPhone Simulator, and executes the unsigned XCTest suite. Backend SQL and smoke suites separately cover authorization, pairing, idempotency, and shared-state behavior.
 
@@ -110,7 +114,7 @@ GitHub Actions runs on macOS, installs XcodeGen, generates the project, discover
 ## Honest current tradeoffs
 
 - Foreground iOS state currently refreshes every two seconds; Android also has direct Supabase Realtime observation.
-- Android has a persisted offline tap queue; iOS currently reports failed taps instead of queueing them.
+- Foreground connectivity recovery uses `NWPathMonitor` and app-active retries; iOS background execution remains controlled by the operating system.
 - Production APNs delivery and physical-device distribution wait on Apple Developer credentials.
 - The shared Story screen is feature-rich and is the next candidate for smaller feature components and dedicated state.
 
@@ -120,7 +124,7 @@ These boundaries are explicit in the repository so the portfolio reflects implem
 
 - Built a native iOS 16+ relationship app in SwiftUI with a custom liquid-heart `Canvas`, Swift Charts insights, PhotosUI memories, WidgetKit, Google OAuth linking, and a shared Supabase backend.
 - Implemented server-authoritative linear decay and idempotent tap commands using integer domain rules, authenticated Edge Functions, PostgreSQL/RLS, and client-side timestamp projection for responsive UI updates.
-- Added VoiceOver semantics, Reduce Motion behavior, String Catalog localization, seven deterministic XCTest cases, XcodeGen project generation, and macOS simulator CI.
+- Added VoiceOver semantics, Reduce Motion behavior, String Catalog localization, a persisted idempotent offline outbox, ten deterministic XCTest cases, XcodeGen project generation, and macOS simulator CI.
 
 ## Five-minute review path
 

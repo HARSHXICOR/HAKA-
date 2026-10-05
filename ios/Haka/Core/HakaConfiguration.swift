@@ -39,3 +39,26 @@ enum HakaError: LocalizedError, Equatable {
         }
     }
 }
+
+extension Error {
+    var isRetryableTapFailure: Bool {
+        if self is CancellationError { return false }
+        if let urlError = self as? URLError { return urlError.code != .cancelled }
+        guard let hakaError = self as? HakaError else { return false }
+        switch hakaError {
+        case .missingSession:
+            return true
+        case .api(let code, _):
+            let normalized = code.uppercased()
+            return normalized == "RESOURCE_EXHAUSTED"
+                || normalized == "UNAUTHENTICATED"
+                || normalized == "UNAUTHORIZED"
+                || normalized == "AUTH_ERROR"
+                || normalized == "HTTP_408"
+                || normalized == "HTTP_429"
+                || normalized.hasPrefix("HTTP_5")
+        case .configuration, .invalidResponse, .oauthCancelled:
+            return false
+        }
+    }
+}

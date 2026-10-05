@@ -39,7 +39,7 @@ struct HomeView: View {
 
                     HomeStats(myTaps: model.myTaps, totalTaps: model.totalTaps, partnerTaps: model.partnerTaps)
                     HomeEncouragementCard()
-                    Label("Synced automatically with your partner", systemImage: "checkmark.seal.fill")
+                    Label(model.syncStatusText, systemImage: model.pendingTapCount == 0 ? "checkmark.seal.fill" : "icloud.and.arrow.up.fill")
                         .font(.footnote)
                         .foregroundStyle(HakaPalette.muted)
                         .padding(.bottom, 10)

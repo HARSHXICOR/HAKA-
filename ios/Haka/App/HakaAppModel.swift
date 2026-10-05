@@ -1,4 +1,5 @@
 import Foundation
+import Network
 import SwiftUI
 import UIKit
 import WidgetKit
@@ -34,6 +35,7 @@ final class HakaAppModel: ObservableObject {
     @Published var selectedTab = 0
     @Published var tapCelebration = 0
     @Published var thinkingPulse = 0
+    @Published private(set) var pendingTapCount = 0
 
     let notifications = NotificationManager()
 
@@ -42,6 +44,10 @@ final class HakaAppModel: ObservableObject {
     private var clockTask: Task<Void, Never>?
     private var oauthCallback: URL?
     private var started = false
+    private var isFlushingTapQueue = false
+    private let tapQueue = TapQueueStore()
+    private let pathMonitor = NWPathMonitor()
+    private let pathMonitorQueue = DispatchQueue(label: "com.haka.connectivity")
 
     init() {
         do {
@@ -50,6 +56,13 @@ final class HakaAppModel: ObservableObject {
             api = nil
             phase = .configuration(error.localizedDescription)
         }
+        pathMonitor.pathUpdateHandler = { [weak self] path in
+            guard path.status == .satisfied else { return }
+            Task { @MainActor [weak self] in
+                await self?.retryQueuedTaps()
+            }
+        }
+        pathMonitor.start(queue: pathMonitorQueue)
     }
 
     var connected: Bool { phase == .paired }
@@ -58,6 +71,11 @@ final class HakaAppModel: ObservableObject {
     var partnerTaps: Int { today?.partnerTaps ?? 0 }
     var totalTaps: Int { today?.totalTaps ?? 0 }
     var heartMaximumScore: Int { heart?.maxScore ?? HeartRules.maximumScore }
+    var syncStatusText: String {
+        pendingTapCount == 0
+            ? "Synced automatically with your partner"
+            : "\(pendingTapCount) \(pendingTapCount == 1 ? "tap" : "taps") waiting to sync"
+    }
 
     var effectiveScore: Int {
         heart?.effectiveScore(at: now) ?? 0
@@ -136,6 +154,7 @@ final class HakaAppModel: ObservableObject {
             let bootstrap = try await api.bootstrap()
             apply(bootstrap)
             message = nil
+            await retryQueuedTaps()
         } catch {
             if heart != nil {
                 message = "Offline — showing the last shared state."
@@ -146,28 +165,62 @@ final class HakaAppModel: ObservableObject {
     }
 
     func tapHeart() {
-        guard let coupleID, phase == .paired else { return }
-        tapCelebration += 1
-        UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+        guard let coupleID, phase == .paired, !userID.isEmpty else { return }
+        let command = QueuedTap(coupleId: coupleID, userId: userID)
         Task {
             do {
-                guard let api else { return }
-                let result = try await api.tap(coupleId: coupleID)
-                if result.accepted {
-                    heart?.score = result.score
-                    heart?.totalTaps = result.totalTaps
-                    today?.myTaps = result.today.myTaps
-                    today?.partnerTaps = result.today.partnerTaps
-                    today?.totalTaps = result.today.totalTaps
-                    today?.completed = result.today.completed
-                    streak = result.streak
-                }
-                await refresh()
-                if result.score >= heartMaximumScore { tapCelebration += HeartRules.maximumScore }
+                pendingTapCount = try await tapQueue.enqueue(command)
+                tapCelebration += 1
+                UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+                message = "Tap saved — syncing with your partner."
+                await retryQueuedTaps()
             } catch {
                 message = error.localizedDescription
             }
         }
+    }
+
+    func retryQueuedTaps() async {
+        guard !isFlushingTapQueue,
+              let api,
+              let coupleID,
+              !userID.isEmpty,
+              api.hasSession else { return }
+        isFlushingTapQueue = true
+        defer { isFlushingTapQueue = false }
+
+        do {
+            let report = try await TapQueueRetrier.replay(
+                store: tapQueue,
+                userId: userID,
+                coupleId: coupleID,
+                submit: { [weak self] command in
+                    let result = try await api.tap(coupleId: command.coupleId, tapId: command.tapId)
+                    await MainActor.run { self?.applyTapResult(result) }
+                },
+                shouldRetry: { $0.isRetryableTapFailure }
+            )
+            pendingTapCount = report.remaining
+            if report.delivered > 0, let bootstrap = try? await api.bootstrap() {
+                apply(bootstrap)
+            }
+            if report.delivered > 0 {
+                message = report.remaining == 0
+                    ? "All saved taps are synced."
+                    : "Synced \(report.delivered); \(report.remaining) still waiting."
+            } else if report.remaining > 0 {
+                message = syncStatusText
+            } else if report.discarded > 0 {
+                message = "A saved tap was rejected and removed."
+            }
+        } catch {
+            message = "Tap queue unavailable: \(error.localizedDescription)"
+        }
+    }
+
+    func applicationDidBecomeActive() async {
+        await retryQueuedTaps()
+        if phase == .paired { await refresh() }
     }
 
     func sendThinkingOfYou() async {
@@ -299,7 +352,10 @@ final class HakaAppModel: ObservableObject {
 
     func signOut() async {
         syncTask?.cancel()
+        let signedOutUserID = userID
         await api?.signOut()
+        try? await tapQueue.removeAll(userId: signedOutUserID)
+        pendingTapCount = 0
         clearSharedState()
         phase = .authentication
     }
@@ -324,6 +380,19 @@ final class HakaAppModel: ObservableObject {
             try await api.storyCommand(request)
             await loadStory()
         }
+    }
+
+    private func applyTapResult(_ result: TapResult) {
+        guard result.accepted || result.duplicate else { return }
+        heart?.score = result.score
+        heart?.totalTaps = result.totalTaps
+        today?.myTaps = result.today.myTaps
+        today?.partnerTaps = result.today.partnerTaps
+        today?.totalTaps = result.today.totalTaps
+        today?.completed = result.today.completed
+        streak = result.streak
+        persistWidget()
+        if result.score >= heartMaximumScore { tapCelebration += HeartRules.maximumScore }
     }
 
     private func apply(_ bootstrap: BootstrapResponse) {

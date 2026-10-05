@@ -120,8 +120,8 @@ final class HakaAPI: NSObject, @unchecked Sendable {
         try await function("get-bootstrap", body: EmptyBody())
     }
 
-    func tap(coupleId: String, tapId: UUID = UUID()) async throws -> TapResult {
-        try await function("tap-heart", body: TapHeartRequest(coupleId: coupleId, tapId: tapId.uuidString.lowercased()))
+    func tap(coupleId: String, tapId: String = UUID().uuidString.lowercased()) async throws -> TapResult {
+        try await function("tap-heart", body: TapHeartRequest(coupleId: coupleId, tapId: tapId))
     }
 
     func thinkingOfYou(coupleId: String) async throws -> ThinkingOfYouResult {

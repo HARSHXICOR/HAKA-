@@ -89,4 +89,116 @@ final class HakaCoreTests: XCTestCase {
         XCTAssertEqual(values.last?.taps, 15)
         XCTAssertEqual(values.last?.today, true)
     }
+    func testTapQueuePersistsOriginalIDsInFIFOOrder() async throws {
+        let fileURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("haka-queue-\(UUID().uuidString).json")
+        defer { try? FileManager.default.removeItem(at: fileURL) }
+        let first = QueuedTap(
+            tapId: "tap-original-1",
+            coupleId: "couple-a",
+            userId: "user-a",
+            createdAt: Date(timeIntervalSince1970: 100)
+        )
+        let second = QueuedTap(
+            tapId: "tap-original-2",
+            coupleId: "couple-a",
+            userId: "user-a",
+            createdAt: Date(timeIntervalSince1970: 101)
+        )
+
+        let writer = TapQueueStore(fileURL: fileURL)
+        _ = try await writer.enqueue(first, now: Date(timeIntervalSince1970: 102))
+        _ = try await writer.enqueue(second, now: Date(timeIntervalSince1970: 102))
+
+        let restored = try await TapQueueStore(fileURL: fileURL).pending(
+            userId: "user-a",
+            coupleId: "couple-a",
+            now: Date(timeIntervalSince1970: 102)
+        )
+        XCTAssertEqual(restored.map(\.tapId), ["tap-original-1", "tap-original-2"])
+    }
+
+    func testTapQueueRetryAcknowledgesSuccessAndPreservesFailedCommand() async throws {
+        struct Offline: Error {}
+        let fileURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("haka-queue-\(UUID().uuidString).json")
+        defer { try? FileManager.default.removeItem(at: fileURL) }
+        let store = TapQueueStore(fileURL: fileURL)
+        let now = Date(timeIntervalSince1970: 1_000)
+        for (index, id) in ["tap-1", "tap-2", "tap-3"].enumerated() {
+            _ = try await store.enqueue(
+                QueuedTap(
+                    tapId: id,
+                    coupleId: "couple-a",
+                    userId: "user-a",
+                    createdAt: now.addingTimeInterval(Double(index))
+                ),
+                now: now.addingTimeInterval(3)
+            )
+        }
+        var submitted: [String] = []
+
+        let report = try await TapQueueRetrier.replay(
+            store: store,
+            userId: "user-a",
+            coupleId: "couple-a",
+            now: now.addingTimeInterval(4),
+            submit: { command in
+                submitted.append(command.tapId)
+                if command.tapId == "tap-2" { throw Offline() }
+            },
+            shouldRetry: { $0 is Offline }
+        )
+
+        XCTAssertEqual(submitted, ["tap-1", "tap-2"])
+        XCTAssertEqual(report, TapReplayReport(delivered: 1, discarded: 0, remaining: 2))
+        let remaining = try await store.pending(
+            userId: "user-a",
+            coupleId: "couple-a",
+            now: now.addingTimeInterval(4)
+        )
+        XCTAssertEqual(remaining.map(\.tapId), ["tap-2", "tap-3"])
+        XCTAssertEqual(remaining.map(\.attempts), [1, 0])
+    }
+
+    func testTapQueueExpiresOldCommandsAndCapsPendingWork() async throws {
+        let fileURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("haka-queue-\(UUID().uuidString).json")
+        defer { try? FileManager.default.removeItem(at: fileURL) }
+        let store = TapQueueStore(fileURL: fileURL)
+        let now = Date(timeIntervalSince1970: 1_000_000)
+        _ = try await store.enqueue(
+            QueuedTap(
+                tapId: "expired",
+                coupleId: "couple-a",
+                userId: "user-a",
+                createdAt: now.addingTimeInterval(-TapQueueStore.retention - 1)
+            ),
+            now: now
+        )
+        for index in 0..<TapQueueStore.maximumCount {
+            _ = try await store.enqueue(
+                QueuedTap(
+                    tapId: "tap-\(index)",
+                    coupleId: "couple-a",
+                    userId: "user-a",
+                    createdAt: now.addingTimeInterval(Double(index))
+                ),
+                now: now
+            )
+        }
+
+        do {
+            _ = try await store.enqueue(
+                QueuedTap(tapId: "overflow", coupleId: "couple-a", userId: "user-a", createdAt: now),
+                now: now
+            )
+            XCTFail("Expected a full queue error")
+        } catch {
+            XCTAssertEqual(error as? TapQueueError, .full)
+        }
+        let pendingCount = try await store.count(userId: "user-a", now: now)
+        XCTAssertEqual(pendingCount, TapQueueStore.maximumCount)
+    }
+
 }

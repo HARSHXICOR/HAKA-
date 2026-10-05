@@ -23,7 +23,7 @@ The current project runs fully in the iOS Simulator without an Apple Developer m
 
 ## Features
 
-- Shared heart with server-authoritative taps and visible linear decay
+- Shared heart with server-authoritative taps, visible linear decay, and a persisted offline outbox
 - Live partner state refresh and automatic local decay rendering
 - Thinking of You nudges, private Love Notes, and Daily Mood
 - Today, contribution, streak, weekly chart, and daily-history insights
@@ -38,7 +38,7 @@ The current project runs fully in the iOS Simulator without an Apple Developer m
 - Native SwiftUI navigation and adaptive layouts across five product areas
 - Custom `Shape` + `Canvas` liquid-heart rendering with haptics and particle effects
 - Dedicated `LoveViewModel` and pure, unit-tested heart/Insights domain projections
-- Native `URLSession` Supabase client with session refresh and Google identity linking
+- Native `URLSession` Supabase client with session refresh, Google identity linking, and idempotent offline tap replay
 - WidgetKit extension using an App Group snapshot
 - VoiceOver semantics, Reduce Motion support, and String Catalog localization
 - XcodeGen source-of-truth project definition and macOS GitHub Actions CI
@@ -51,6 +51,7 @@ SwiftUI views
     ├── HakaAppModel            session, pairing, heart, navigation
     ├── LoveViewModel           Love Notes, moods, feature refresh loop
     ├── InsightsProjection      pure daily and seven-day mapping
+    ├── TapQueueStore           persistent, account-scoped command outbox
     ├── Feature views           Heart, Insights, Love, Us, Settings
     └── WidgetSnapshot          App Group projection for WidgetKit
             │
@@ -150,7 +151,7 @@ xcodebuild \
   test
 ```
 
-The test target currently covers invite formatting, timestamp normalization, exact decay boundaries and clamping, daily-status and streak mapping, contribution percentages, and authoritative seven-day insight projection. Backend idempotency and authorization are additionally exercised by the Supabase SQL and smoke-test suites at the repository root.
+The test target covers invite formatting, timestamp normalization, decay boundaries and clamping, daily and streak mapping, contribution percentages, seven-day insight projection, persisted tap ordering, idempotent replay behavior, queue expiry, and capacity limits. Backend idempotency and authorization are additionally exercised by the Supabase SQL and smoke-test suites at the repository root.
 
 ## Simulator notifications
 

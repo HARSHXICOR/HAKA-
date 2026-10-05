@@ -54,7 +54,7 @@ See the dedicated [iOS setup and architecture guide](ios/README.md).
 | Accessibility | Semantic heart button, VoiceOver label/value/hint, adaptive layouts, and Reduce Motion behavior | [HomeView.swift](ios/Haka/Features/Home/HomeView.swift) |
 | Networking and identity | Native URLSession client, Supabase anonymous auth, Google OAuth linking, session refresh, and authenticated Edge Functions | [HakaAPI.swift](ios/Haka/Core/HakaAPI.swift), [SessionStore.swift](ios/Haka/Core/SessionStore.swift) |
 | Platform integration | WidgetKit extension, App Group snapshot sharing, PhotosUI, Swift Charts, and simulator notification fixtures | [HakaWidget.swift](ios/HakaWidget/HakaWidget.swift), [PushPayloads](ios/PushPayloads) |
-| Quality | Deterministic heart/insight domain rules, 7 XCTest cases, string catalog, XcodeGen, and macOS CI | [Tests](ios/Tests/HakaCoreTests.swift), [iOS workflow](.github/workflows/ios-ci.yml) |
+| Quality | Deterministic domain rules, persisted offline tap replay, 10 XCTest cases, string catalog, XcodeGen, and macOS CI | [Tests](ios/Tests/HakaCoreTests.swift), [iOS workflow](.github/workflows/ios-ci.yml) |
 
 For a hiring-manager-oriented walkthrough, tradeoffs, selected code map, and resume-ready project bullets, read the [iOS portfolio case study](docs/IOS_PORTFOLIO.md).
 
@@ -133,7 +133,7 @@ The Android app and native iOS simulator app share the same Supabase project and
 | Memories, bucket lists, and dates | ✅ | ✅ |
 | Home-screen widget | ✅ | ✅ |
 | Narrow-screen responsive layout | ✅ | ✅ |
-| Offline tap queue | ✅ | — |
+| Offline tap queue | ✅ | ✅ |
 | Production partner push delivery | ✅ | Requires APNs credentials |
 | Simulator notification presentation | N/A | ✅ |
 
@@ -483,7 +483,7 @@ xcodebuild \\
   test
 ~~~
 
-The iOS suite currently contains seven tests covering invite formatting, timestamp normalization, exact decay boundaries and clamping, daily/streak projection, contribution percentages, and seven-day history mapping.
+The iOS suite contains ten tests covering domain projections plus persistent FIFO tap ordering, idempotent retry behavior, queue expiry, and capacity limits.
 
 ### Local Supabase database
 
