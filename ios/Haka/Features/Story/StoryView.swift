@@ -3,7 +3,7 @@ import SwiftUI
 
 struct StoryView: View {
     @EnvironmentObject private var model: HakaAppModel
-    @State private var section = 0
+    @State private var section: StorySection = .memories
     @State private var addMemory = false
     @State private var addBucket = false
     @State private var addDate = false
@@ -15,39 +15,46 @@ struct StoryView: View {
     var body: some View {
         ZStack {
             HakaBackground(bottom: Color(red: 0.10, green: 0.06, blue: 0.13))
-            ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 18) {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 5) {
-                            Text("Us").font(.largeTitle.bold())
-                            Text("Your private story, kept together.")
-                                .foregroundStyle(HakaPalette.muted)
-                        }
-                        Spacer()
-                        Button(action: addCurrent) {
-                            Image(systemName: "plus")
-                                .font(.title3.bold())
-                                .frame(width: 44, height: 44)
-                                .background(HakaPalette.rose, in: Circle())
-                        }
+            VStack(spacing: 0) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("Us").font(.largeTitle.bold())
+                        Text("Your private story, kept together.")
+                            .foregroundStyle(HakaPalette.muted)
                     }
-
-                    Picker("Story section", selection: $section) {
-                        Text("Memories").tag(0)
-                        Text("Bucket List").tag(1)
-                        Text("Dates").tag(2)
+                    Spacer()
+                    Button(action: addCurrent) {
+                        Image(systemName: "plus")
+                            .font(.title3.bold())
+                            .frame(width: 44, height: 44)
+                            .background(HakaPalette.rose, in: Circle())
                     }
-                    .pickerStyle(.segmented)
-
-                    switch section {
-                    case 0: memories
-                    case 1: buckets
-                    default: dates
-                    }
+                    .accessibilityLabel("Add to \(section.title)")
                 }
-                .padding(20)
+                .padding(.horizontal, 20)
+                .padding(.top, 20)
+
+                StorySectionControl(selection: $section)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 18)
+                    .padding(.bottom, 8)
+                    .zIndex(2)
+
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 18) {
+                        switch section {
+                        case .memories: memories
+                        case .bucketList: buckets
+                        case .dates: dates
+                        }
+                    }
+                    .id(section)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 10)
+                    .padding(.bottom, 20)
+                }
+                .refreshable { await model.loadStory() }
             }
-            .refreshable { await model.loadStory() }
         }
         .navigationBarHidden(true)
         .task { await model.loadStory() }
@@ -144,9 +151,63 @@ struct StoryView: View {
     }
 
     private func addCurrent() {
-        if section == 0 { addMemory = true }
-        else if section == 1 { addBucket = true }
-        else { addDate = true }
+        switch section {
+        case .memories: addMemory = true
+        case .bucketList: addBucket = true
+        case .dates: addDate = true
+        }
+    }
+}
+
+private enum StorySection: String, CaseIterable, Identifiable {
+    case memories
+    case bucketList
+    case dates
+
+    var id: Self { self }
+    var title: String {
+        switch self {
+        case .memories: "Memories"
+        case .bucketList: "Bucket List"
+        case .dates: "Dates"
+        }
+    }
+}
+
+private struct StorySectionControl: View {
+    @Binding var selection: StorySection
+
+    var body: some View {
+        HStack(spacing: 4) {
+            ForEach(StorySection.allCases) { item in
+                Button {
+                    selection = item
+                } label: {
+                    Text(item.title)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(selection == item ? Color.white : HakaPalette.muted)
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .background {
+                            if selection == item {
+                                RoundedRectangle(cornerRadius: 13, style: .continuous)
+                                    .fill(Color.white.opacity(0.22))
+                            }
+                        }
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(item.title)
+                .accessibilityAddTraits(selection == item ? .isSelected : [])
+            }
+        }
+        .padding(4)
+        .background(HakaPalette.panel, in: RoundedRectangle(cornerRadius: 17, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 17, style: .continuous)
+                .stroke(HakaPalette.line)
+                .allowsHitTesting(false)
+        }
+        .contentShape(Rectangle())
     }
 }
 
