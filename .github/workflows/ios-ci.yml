@@ -1,0 +1,63 @@
+name: Haka iOS CI
+
+on:
+  pull_request:
+    paths:
+      - "ios/**"
+      - ".github/workflows/ios-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ios/**"
+      - ".github/workflows/ios-ci.yml"
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: SwiftUI build and XCTest
+    runs-on: macos-15
+    timeout-minutes: 25
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Create non-secret CI configuration
+        run: cp Config/Secrets.xcconfig.example Config/Secrets.xcconfig
+        working-directory: ios
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+        working-directory: ios
+
+      - name: Select an available iPhone Simulator
+        shell: bash
+        run: |
+          DEVICE_ID=$(xcrun simctl list devices available -j | ruby -rjson -e '
+            devices = JSON.parse(STDIN.read).fetch("devices").values.flatten
+            device = devices.find { |item| item["isAvailable"] && item["name"].start_with?("iPhone") }
+            abort "No available iPhone Simulator found" unless device
+            puts device.fetch("udid")
+          ')
+          echo "IOS_SIMULATOR_ID=$DEVICE_ID" >> "$GITHUB_ENV"
+
+      - name: Build and run unit tests
+        run: >-
+          xcodebuild
+          -project HakaIOS.xcodeproj
+          -scheme Haka
+          -configuration Debug
+          -destination "platform=iOS Simulator,id=$IOS_SIMULATOR_ID"
+          -derivedDataPath "$RUNNER_TEMP/HakaDerivedData"
+          CODE_SIGNING_ALLOWED=NO
+          test
+        working-directory: ios
