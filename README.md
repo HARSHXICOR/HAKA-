@@ -1,10 +1,11 @@
 <div align="center">
-  <img src="app/src/main/res/drawable-nodpi/ic_haka_logo.png" alt="Haka logo" width="180" />
+  <img src="ios/Haka/Resources/Assets.xcassets/AppIcon.appiconset/icon-1024.png" alt="Haka iOS app icon" width="180" />
 
   # Haka
 
-  **A private shared-heart experience for two people, built natively for Android and iOS.**
+  **A native SwiftUI shared-heart experience backed by Supabase, with a native Android companion.**
 
+  [![iOS CI](https://github.com/HARSHXICOR/HAKA-/actions/workflows/ios-ci.yml/badge.svg)](https://github.com/HARSHXICOR/HAKA-/actions/workflows/ios-ci.yml)
   [![Backend CI](https://github.com/HARSHXICOR/HAKA-/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/HARSHXICOR/HAKA-/actions/workflows/backend-ci.yml)
   ![iOS](https://img.shields.io/badge/iOS-16%2B-000000?logo=apple&logoColor=white)
   ![Swift](https://img.shields.io/badge/Swift-SwiftUI-F05138?logo=swift&logoColor=white)
@@ -12,7 +13,7 @@
   ![Kotlin](https://img.shields.io/badge/Kotlin-Jetpack%20Compose-7F52FF?logo=kotlin&logoColor=white)
   ![Supabase](https://img.shields.io/badge/Backend-Supabase-3FCF8E?logo=supabase&logoColor=white)
 
-  [Features](#features) · [Architecture](#architecture) · [Setup](#local-development) · [Testing](#testing) · [Security](#security-and-privacy)
+  [iOS Case Study](docs/IOS_PORTFOLIO.md) · [iOS Setup](ios/README.md) · [Architecture](#architecture) · [Testing](#testing) · [Security](#security-and-privacy)
 </div>
 
 ---
@@ -43,6 +44,19 @@ The iOS client is a native SwiftUI implementation—not a web wrapper or generat
 The shared heart is exposed as an accessible control with a descriptive value and action hint. The layout supports Dynamic Type-friendly SwiftUI text, VoiceOver labels, reduced-motion-aware system animation primitives, and compact iPhone widths.
 
 See the dedicated [iOS setup and architecture guide](ios/README.md).
+
+## iOS engineering highlights
+
+| Area | Native implementation | Evidence |
+| --- | --- | --- |
+| UI architecture | SwiftUI feature views, shared session/heart state, dedicated Love feature model, pure Insights projection | [App model](ios/Haka/App/HakaAppModel.swift), [LoveViewModel](ios/Haka/Features/Love/LoveViewModel.swift), [InsightsProjection](ios/Haka/Core/InsightsProjection.swift) |
+| Custom rendering | Shape-based heart, clipped liquid fill, animated Canvas wave, tap particles, and full-heart celebration | [HeartEffects.swift](ios/Haka/Features/Home/HeartEffects.swift) |
+| Accessibility | Semantic heart button, VoiceOver label/value/hint, adaptive layouts, and Reduce Motion behavior | [HomeView.swift](ios/Haka/Features/Home/HomeView.swift) |
+| Networking and identity | Native URLSession client, Supabase anonymous auth, Google OAuth linking, session refresh, and authenticated Edge Functions | [HakaAPI.swift](ios/Haka/Core/HakaAPI.swift), [SessionStore.swift](ios/Haka/Core/SessionStore.swift) |
+| Platform integration | WidgetKit extension, App Group snapshot sharing, PhotosUI, Swift Charts, and simulator notification fixtures | [HakaWidget.swift](ios/HakaWidget/HakaWidget.swift), [PushPayloads](ios/PushPayloads) |
+| Quality | Deterministic heart/insight domain rules, 7 XCTest cases, string catalog, XcodeGen, and macOS CI | [Tests](ios/Tests/HakaCoreTests.swift), [iOS workflow](.github/workflows/ios-ci.yml) |
+
+For a hiring-manager-oriented walkthrough, tradeoffs, selected code map, and resume-ready project bullets, read the [iOS portfolio case study](docs/IOS_PORTFOLIO.md).
 
 ## Release status
 

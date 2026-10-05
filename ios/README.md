@@ -1,6 +1,12 @@
 # Haka for iOS
 
-Haka for iOS is the native SwiftUI client for Haka, a private shared-heart app for two people. It consumes the same Supabase authentication, PostgreSQL state, Edge Functions, Realtime data, and private Storage used by the Android client.
+Haka for iOS is the native SwiftUI client for Haka, a private shared-heart app for two people. It consumes the same Supabase authentication, PostgreSQL state, Edge Functions, and private Storage used by the Android client.
+
+[![iOS CI](https://github.com/HARSHXICOR/HAKA-/actions/workflows/ios-ci.yml/badge.svg)](https://github.com/HARSHXICOR/HAKA-/actions/workflows/ios-ci.yml)
+![Swift](https://img.shields.io/badge/Swift-5.10-F05138?logo=swift&logoColor=white)
+![iOS](https://img.shields.io/badge/iOS-16%2B-000000?logo=apple&logoColor=white)
+
+**Portfolio review:** [Read the iOS engineering case study](../docs/IOS_PORTFOLIO.md) for design decisions, selected implementation links, test evidence, tradeoffs, and resume-ready bullets.
 
 The current project runs fully in the iOS Simulator without an Apple Developer membership. Production APNs delivery, physical-device installation, TestFlight, and App Store distribution require Apple credentials later.
 
@@ -27,6 +33,16 @@ The current project runs fully in the iOS Simulator without an Apple Developer m
 - VoiceOver labels and hints on the interactive shared heart
 - Simulator notification fixtures for Thinking of You and Love Notes
 
+## Engineering highlights
+
+- Native SwiftUI navigation and adaptive layouts across five product areas
+- Custom `Shape` + `Canvas` liquid-heart rendering with haptics and particle effects
+- Dedicated `LoveViewModel` and pure, unit-tested heart/Insights domain projections
+- Native `URLSession` Supabase client with session refresh and Google identity linking
+- WidgetKit extension using an App Group snapshot
+- VoiceOver semantics, Reduce Motion support, and String Catalog localization
+- XcodeGen source-of-truth project definition and macOS GitHub Actions CI
+
 ## Architecture
 
 ```text
@@ -36,7 +52,7 @@ SwiftUI views
     ├── LoveViewModel           Love Notes, moods, feature refresh loop
     ├── InsightsProjection      pure daily and seven-day mapping
     ├── Feature views           Heart, Insights, Love, Us, Settings
-    └── WidgetSnapshotStore     App Group projection for WidgetKit
+    └── WidgetSnapshot          App Group projection for WidgetKit
             │
             ▼
 HakaAPI (URLSession)
